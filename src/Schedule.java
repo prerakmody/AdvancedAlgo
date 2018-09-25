@@ -20,7 +20,7 @@ public class Schedule implements Comparable<Schedule> {
 		this.tardiness = 0;
 	}
 	
-	// add an additional job to the schedule
+	// add an additional Job to the schedule
 	public Schedule(Schedule s, int jobID, int jobLength, int jobDueTime){		
 		this.previous = s;
 		this.jobID = jobID;

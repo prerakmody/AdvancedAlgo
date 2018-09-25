@@ -27,7 +27,7 @@ public class MyAlgo{
     }
 
     // 2. This function is called by the outside world
-    public Schedule getSchedule(){
+    public OurSchedule getSchedule(){
         /*
         1. Get the k value for all jobs
         2. Loop over all delta in (0, numJobs - k)
@@ -37,42 +37,54 @@ public class MyAlgo{
 //        int jobID = -1;
 //        int jobLength = -1;
 //        int jobDueTime = -1;
-//
-//        for(int i = 0; i < numJobs; ++i){
-//            if(jobDueTime == -1 || jobDueTime > jobs[i][1]){
-//                jobID = i;
-//                jobLength = jobs[i][0];
-//                jobDueTime = jobs[i][1];
-//            }
-//        }
+        OurSchedule s = new OurSchedule();
+        int i=0;
+        for(int[] job: jobs){
+            s.add(new Job(i, job[0], job[1]));
+//            jobID = i;
+//            jobLength = jobs[i][0];
+//            jobDueTime = jobs[i][1];
+            i++;
+        }
 
 
 
-        return getSchedule(jobs);
+        return getSchedule(s, 0);
     }
 
     // 3. The private function
-    private Schedule getSchedule(int[][] jobSet, int startIndex, int endIndex){
-        int k = getK(jobSet);
-        int N = jobSet.length;
-        Schedule s = null;
+    private OurSchedule getSchedule(OurSchedule schedule, int timePassed){
+        Job kJob = getK(schedule);
+        int kId = kJob.id;
+
+        int N = schedule.size();
+        OurSchedule returnSchedule = new OurSchedule();
 
         if (N == 0){
-            return s;
+            return returnSchedule;
+        }
+        if(schedule.size()==1){
+            return schedule;
         }
         //todo add second if clause
         int minimumTardiness = Integer.MAX_VALUE;
-        for (int delta=0; delta < N-k; delta++){
+        for (int delta=0; delta < N-kId; delta++){
 
-            int [][] jobsBranch1 = constructBranch1(jobSet, 0, k-1, delta, k); // jobSet[0, k-1] + jobset(k-1, k+delta] - jobs[k]
-            int jobsBranch2      = constructBranch2(jobsBranch1, jobSet[k][1]);
-            int [][] jobsBranch3 = constructBranch3(jobSet, k+delta+1, N); // jobSet[k+delta, N]
+            OurSchedule jobsBranch1 = schedule.getSubset(0, kId-1).concatenate(schedule.getSubset(kId+1,kId+delta));
+            OurSchedule jobsBranch2 = schedule.getSubset(0,kId+delta);
+            OurSchedule jobsBranch3 = schedule.getSubset(kId+delta+1, N);
+//            int [][] jobsBranch1 = constructBranch1(jobSet, 0, k-1, delta, k); // jobSet[0, k-1] + jobset(k-1, k+delta] - jobs[k]
+//            int jobsBranch2      = constructBranch2(jobsBranch1, jobSet[k][1]);
+//            int [][] jobsBranch3 = constructBranch3(jobSet, k+delta+1, N); // jobSet[k+delta, N]
 
-            Schedule scheduleBranch1 = getSchedule(jobsBranch1);
-            Schedule scheduleBranch3 = getSchedule(jobsBranch3);
+            int ck = timePassed+jobsBranch2.getProcessingTime();
+
+
+            OurSchedule scheduleBranch1 = getSchedule(jobsBranch1, timePassed);
+            OurSchedule scheduleBranch3 = getSchedule(jobsBranch3, ck);
 
             int tardinessBranch1 = scheduleBranch1.getTardiness();
-            int tardinessBranch2 = jobsBranch2;
+            int tardinessBranch2 = Math.max(0, ck-kJob.dueTime);
             int tardinessBranch3 = scheduleBranch3.getTardiness();
 
             int totalTardiness = tardinessBranch1+tardinessBranch2+tardinessBranch3;
@@ -80,16 +92,12 @@ public class MyAlgo{
             if (totalTardiness<minimumTardiness) {
                 minimumTardiness=totalTardiness;
                 // todo check that jobId is indeed irrelevant
-                for(int[] job : jobsBranch1){
-                    s = new Schedule(s,0, job[0], job[1]);
-                }
-                s = new Schedule(s,0,jobSet[k][0],jobSet[k][1]);
-                for(int[] job : jobsBranch3){
-                    s = new Schedule(s, 0, job[0], job[1]);
-                }
+                OurSchedule scheduleBranch2 = new OurSchedule();
+                scheduleBranch2.add(kJob);
+                returnSchedule = scheduleBranch1.concatenate(scheduleBranch2).concatenate(scheduleBranch3);
             }
         }
-        return s;
+        return returnSchedule;
     }
 
     ////////////////////////////////////// HELPER FUNCTIONS //////////////////////////////////////
@@ -144,18 +152,17 @@ public class MyAlgo{
         );
     }
 
-    private int getK(int [][] jobs){
-        int numJobs = jobs.length;
-        int jobLengthK       = -1;
-        int jobIDK       = -1;
-        for (int i=0; i < numJobs; i++){ //job[i][0]=jobLength, job[i][1]=jobDueTime
-            if (jobs[i][0] > jobLengthK){
-                jobLengthK = jobs[i][0];
-                jobIDK     = i;
+    private Job getK(OurSchedule schedule){
+        Job bestK     = null;
+        int bestKLength = -1;
+        for(Job job : schedule) {
+            if (job.processingTime > bestKLength) {
+                bestKLength = job.processingTime;
+                bestK = job;
             }
         }
 
-        return jobIDK;
+        return bestK;
     }
 
 }

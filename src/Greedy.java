@@ -26,7 +26,7 @@ public class Greedy {
 		return getSchedule(new Schedule(null, jobID, jobLength, jobDueTime));
 	}
 	
-	// adds the next earliest deadline first job to the schedule
+	// adds the next earliest deadline first Job to the schedule
 	private Schedule getSchedule(Schedule s){
 		if(s.getDepth() >= numJobs) return s;
 		
