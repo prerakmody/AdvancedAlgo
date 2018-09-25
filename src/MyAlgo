@@ -1,3 +1,5 @@
+import java.lang.*;
+
 public class MyAlgo{
     private int numJobs;
     private int[][] jobs;
@@ -7,8 +9,7 @@ public class MyAlgo{
     public MyAlgo(ProblemInstance instance){
         numJobs = instance.getNumJobs();
         jobs    = instance.getJobs();
-
-        sortedJobs = getSortedJobs(jobs);
+        sortJobs();
     }
 
     // 2. This function is called by the outside world
@@ -25,33 +26,84 @@ public class MyAlgo{
 
     }
 
-    private int[][] getSortedJobs(int [][] jobs){
+    private myFunc(int[][] jobSet){
+        int k = getK(jobSet);
+        int N = jobSet.length;
+        Schedule s = null;
 
-
-    }
-
-    private myFunc(int [][] jobs){
-        int k = getK(jobs);
-        int N = jobs.length;
+        if (N == 0){
+            return s;
+        }
 
         for (int delta=0; delta < N-k; delta++){
+            int [][] jobsBranch1 = constructBranch1(jobSet, 0, k-1, delta, k); // jobSet[0, k-1] + jobset(k-1, k+delta] - jobs[k]
+            int jobsBranch2      = constructBranch2(jobsBranch1)
+            int [][] jobsBranch3 = constructBranch3(jobSet, k+delta, N); // jobSet[k+delta, N]
 
+            myFunc(jobsBranch1);
+            myFunc(jobsBranch3);
 
             //return new Schedule(s, jobID, jobLength, jobDueTime)
         }
     }
 
-    private int getK(int [][] jobs){
-        int numJobs = jobs.length;
-        int k       = -1;
-        for (int i=0; i < numJobs; i++){ //job[i][0]=jobLength, job[i][1]=jobDueTime
-            if (jobs[i][0] > k){
-                k = jobs[i][0]
+    ////////////////////////////////////// HELPER FUNCTIONS //////////////////////////////////////
+    private int[][] constructBranch3(int[][] jobSet, int start_idx, int end_idx){
+        int[][] newJobSet;
+        for (int i=start_idx, i <= end_idx; i++){
+            newJobSet[i] = jobSet[i]
+        }
+
+        return newJobSet;
+    }
+
+    private int constructBranch2(int [][] jobSet){
+        int sum_pj = 0;
+        for (int i=0; i< jobSet.length; i++){
+            sum_pj += jobSet[i][0]
+        }
+
+        return Math.min(0, sum_pj - )
+    }
+
+    private int[][] constructBranch1(int[][] jobSet, int start_idx, int end_idx, int delta, int k){
+        int[][] newJobSet;
+        for (int i=start_idx, i <= end_idx; i++){
+            newJobSet[i] = jobSet[i]
+        }
+        if (delta > 0){
+            for (int i=end_idx+1; i <= delta+k; i++){
+                newJobSet[i] = jobSet[i]
             }
         }
 
-        return k;
+        return newJobSet;
     }
 
+    private void sortJobs(){
+        Arrays.sort(jobs, new Comparator<Integer[]>() {
+            @Override
+            public int compare(Integer[] o1, Integer[] o2) {
+                Integer quantityOne = o1[1]; //0 - p(j), 1 - d(j)
+                Integer quantityTwo = o2[1];
+                // reverse sort on quantity
+                return quantityOne.compareTo(quantityTwo);
+            }
+        });
+    }
+
+    private int getK(int [][] jobs){
+        int numJobs = jobs.length;
+        int jobLengthK       = -1;
+        int jobIDK       = -1;
+        for (int i=0; i < numJobs; i++){ //job[i][0]=jobLength, job[i][1]=jobDueTime
+            if (jobs[i][0] > jobLengthK){
+                jobLengthK = jobs[i][0];
+                jobIDK     = i
+            }
+        }
+
+        return jobIDK;
+    }
 
 }
