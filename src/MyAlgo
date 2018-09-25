@@ -1,0 +1,57 @@
+public class MyAlgo{
+    private int numJobs;
+    private int[][] jobs;
+    private int[][] sortedJobs;
+
+    // 1. Constructor
+    public MyAlgo(ProblemInstance instance){
+        numJobs = instance.getNumJobs();
+        jobs    = instance.getJobs();
+
+        sortedJobs = getSortedJobs(jobs);
+    }
+
+    // 2. This function is called by the outside world
+    public Schedule getSchedule(){
+        /*
+        1. Get the k value for all jobs
+        2. Loop over all delta in (0, numJobs - k)
+            2.1. Using each delta, create a DP problem
+        */
+    }
+
+    // 3. The private function
+    private Schedule getSchedule(Schedule s){
+
+    }
+
+    private int[][] getSortedJobs(int [][] jobs){
+
+
+    }
+
+    private myFunc(int [][] jobs){
+        int k = getK(jobs);
+        int N = jobs.length;
+
+        for (int delta=0; delta < N-k; delta++){
+
+
+            //return new Schedule(s, jobID, jobLength, jobDueTime)
+        }
+    }
+
+    private int getK(int [][] jobs){
+        int numJobs = jobs.length;
+        int k       = -1;
+        for (int i=0; i < numJobs; i++){ //job[i][0]=jobLength, job[i][1]=jobDueTime
+            if (jobs[i][0] > k){
+                k = jobs[i][0]
+            }
+        }
+
+        return k;
+    }
+
+
+}
