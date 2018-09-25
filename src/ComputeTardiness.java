@@ -44,5 +44,9 @@ public class ComputeTardiness {
 		BestFirst bestFirst = new BestFirst(instance);
 		Schedule bestFirstSchedule = bestFirst.getSchedule();
 		System.out.println(bestFirstSchedule.getTardiness());
+
+		MyAlgo myfunc = new MyAlgo(instance);
+		Schedule myFuncSchedule = myfunc.getSchedule();
+		System.out.println(myFuncSchedule.getTardiness());
 	}
 }
