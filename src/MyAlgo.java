@@ -33,11 +33,26 @@ public class MyAlgo{
         2. Loop over all delta in (0, numJobs - k)
             2.1. Using each delta, create a DP problem
         */
+
+//        int jobID = -1;
+//        int jobLength = -1;
+//        int jobDueTime = -1;
+//
+//        for(int i = 0; i < numJobs; ++i){
+//            if(jobDueTime == -1 || jobDueTime > jobs[i][1]){
+//                jobID = i;
+//                jobLength = jobs[i][0];
+//                jobDueTime = jobs[i][1];
+//            }
+//        }
+
+
+
         return getSchedule(jobs);
     }
 
     // 3. The private function
-    private Schedule getSchedule(int[][] jobSet){
+    private Schedule getSchedule(int[][] jobSet, int startIndex, int endIndex){
         int k = getK(jobSet);
         int N = jobSet.length;
         Schedule s = null;
@@ -51,7 +66,7 @@ public class MyAlgo{
 
             int [][] jobsBranch1 = constructBranch1(jobSet, 0, k-1, delta, k); // jobSet[0, k-1] + jobset(k-1, k+delta] - jobs[k]
             int jobsBranch2      = constructBranch2(jobsBranch1, jobSet[k][1]);
-            int [][] jobsBranch3 = constructBranch3(jobSet, k+delta, N); // jobSet[k+delta, N]
+            int [][] jobsBranch3 = constructBranch3(jobSet, k+delta+1, N); // jobSet[k+delta, N]
 
             Schedule scheduleBranch1 = getSchedule(jobsBranch1);
             Schedule scheduleBranch3 = getSchedule(jobsBranch3);
@@ -80,8 +95,11 @@ public class MyAlgo{
     ////////////////////////////////////// HELPER FUNCTIONS //////////////////////////////////////
     private int[][] constructBranch3(int[][] jobSet, int start_idx, int end_idx){
         /*k+delta+1..n*/
-        int[][] newJobSet;
+        int[][] newJobSet = new int[end_idx-start_idx+1][2];
         for (int i=start_idx; i <= end_idx; i++){
+            if(jobSet.length<=i || newJobSet.length<=i){
+                break;
+            }
             newJobSet[i] = jobSet[i];
         }
 
@@ -100,15 +118,22 @@ public class MyAlgo{
 
     private int[][] constructBranch1(int[][] jobSet, int start_idx, int end_idx, int delta, int k){
         /*1..k-1,   k+1..k+delta**/
-        int[][] newJobSet;
-        for (int i=start_idx; i <= end_idx; i++){ //0...k-1
+//        int newJobSetLength = end_idx-start_idx+1;
+//        newJobSetLength+= k+delta-(end_idx+1)+1;
+        int newJobSetLength = k+delta;
+        int[][] newJobSet = new int[newJobSetLength][2];
+
+        for (int i=start_idx; i <= end_idx+k+delta; i++){ //0...k-1
+            if(i==k){
+                continue;
+            }
             newJobSet[i] = jobSet[i];
         }
-        if (delta > 0){
-            for (int i=end_idx+1; i <= k+delta; i++){ //k-1...k+delta
-                newJobSet[i] = jobSet[i];
-            }
-        }
+//        if (delta > 0){
+//            for (int i=end_idx+2; i <= k+delta; i++){ //k-1...k+delta
+//                newJobSet[i] = jobSet[i];
+//            }
+//        }
 
         return newJobSet;
     }
