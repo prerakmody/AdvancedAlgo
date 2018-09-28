@@ -8,4 +8,9 @@ public class Job {
         this.dueTime=dueTime;
 
     }
+
+
+    public String toString(){
+        return "<id: "+this.id+", processingTime: "+this.processingTime+", dueTime: "+this.dueTime+">";
+    }
 }

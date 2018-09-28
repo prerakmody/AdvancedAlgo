@@ -54,18 +54,22 @@ public class MyAlgo{
 
     // 3. The private function
     private OurSchedule getSchedule(OurSchedule schedule, int timePassed){
-        Job kJob = getK(schedule);
-        int kId = kJob.id;
 
+//        System.out.println(schedule);
         int N = schedule.size();
         OurSchedule returnSchedule = new OurSchedule();
 
         if (N == 0){
             return returnSchedule;
         }
+
         if(schedule.size()==1){
             return schedule;
         }
+
+        Job kJob = getK(schedule);
+//        int kId = kJob.id;
+        int kId = schedule.indexOf(kJob);
         //todo add second if clause
         int minimumTardiness = Integer.MAX_VALUE;
         for (int delta=0; delta < N-kId; delta++){
@@ -77,7 +81,7 @@ public class MyAlgo{
 //            int jobsBranch2      = constructBranch2(jobsBranch1, jobSet[k][1]);
 //            int [][] jobsBranch3 = constructBranch3(jobSet, k+delta+1, N); // jobSet[k+delta, N]
 
-            int ck = timePassed+jobsBranch2.getProcessingTime();
+            int ck = jobsBranch2.getProcessingTime();//todo with or without timepassed
 
 
             OurSchedule scheduleBranch1 = getSchedule(jobsBranch1, timePassed);
@@ -88,63 +92,30 @@ public class MyAlgo{
             int tardinessBranch3 = scheduleBranch3.getTardiness();
 
             int totalTardiness = tardinessBranch1+tardinessBranch2+tardinessBranch3;
+            OurSchedule scheduleBranch2 = new OurSchedule();
+            scheduleBranch2.add(kJob);
+            OurSchedule candidateSchedule = scheduleBranch1.concatenate(scheduleBranch2).concatenate(scheduleBranch3);
+//            System.out.println(totalTardiness);
+//            System.out.println(candidateSchedule.getTardiness());
+//            System.out.println("kId: "+kId);
+//            System.out.println(scheduleBranch1);
+//            System.out.println(scheduleBranch2);
+//            System.out.println(scheduleBranch3);
+//            System.out.println(schedule);
+//            System.out.println(candidateSchedule);
+
+//            System.out.println(totalTardiness);
 
             if (totalTardiness<minimumTardiness) {
-                minimumTardiness=totalTardiness;
+                minimumTardiness=candidateSchedule.getTardiness();
                 // todo check that jobId is indeed irrelevant
-                OurSchedule scheduleBranch2 = new OurSchedule();
-                scheduleBranch2.add(kJob);
-                returnSchedule = scheduleBranch1.concatenate(scheduleBranch2).concatenate(scheduleBranch3);
+                returnSchedule = candidateSchedule;
             }
         }
         return returnSchedule;
     }
 
     ////////////////////////////////////// HELPER FUNCTIONS //////////////////////////////////////
-    private int[][] constructBranch3(int[][] jobSet, int start_idx, int end_idx){
-        /*k+delta+1..n*/
-        int[][] newJobSet = new int[end_idx-start_idx+1][2];
-        for (int i=start_idx; i <= end_idx; i++){
-            if(jobSet.length<=i || newJobSet.length<=i){
-                break;
-            }
-            newJobSet[i] = jobSet[i];
-        }
-
-        return newJobSet;
-    }
-
-    private int constructBranch2(int [][] jobSet, int kDeadline){
-
-        int sum_pj = 0;
-        for (int i=0; i< jobSet.length; i++){
-            sum_pj += jobSet[i][0];
-        }
-
-        return Math.min(0, sum_pj - kDeadline);
-    }
-
-    private int[][] constructBranch1(int[][] jobSet, int start_idx, int end_idx, int delta, int k){
-        /*1..k-1,   k+1..k+delta**/
-//        int newJobSetLength = end_idx-start_idx+1;
-//        newJobSetLength+= k+delta-(end_idx+1)+1;
-        int newJobSetLength = k+delta;
-        int[][] newJobSet = new int[newJobSetLength][2];
-
-        for (int i=start_idx; i <= end_idx+k+delta; i++){ //0...k-1
-            if(i==k){
-                continue;
-            }
-            newJobSet[i] = jobSet[i];
-        }
-//        if (delta > 0){
-//            for (int i=end_idx+2; i <= k+delta; i++){ //k-1...k+delta
-//                newJobSet[i] = jobSet[i];
-//            }
-//        }
-
-        return newJobSet;
-    }
 
     private void sortJobs(){
         Arrays.sort(jobs,
