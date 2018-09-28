@@ -1,19 +1,33 @@
 import java.util.LinkedList;
 
+
+
 public class OurSchedule extends LinkedList<Job> {
+
+    int totalTime = 0;
+    int tardiness = 0;
+    int longestJobIndex = 0;
+    Job longestJob = null;
+
     public OurSchedule(){
         super();
     }
 
+    public boolean add(Job job){
+        if(job!=null) {
+            tardiness += Math.max(0, (this.totalTime + job.processingTime) - job.dueTime);
+            totalTime += job.processingTime;
+            if (longestJob==null || job.processingTime < longestJob.processingTime) {
+                longestJobIndex = this.size();
+                longestJob = job;
+            }
+        }
+
+        return super.add(job);
+    }
 
     public int getTardiness(){
-        int tardiness=0;
-        int totalTime = 0;
-        for(Job job: this){
-            tardiness+=Math.max(0, (totalTime+job.processingTime)-job.dueTime);
-            totalTime+=job.processingTime;
-        }
-        return tardiness;
+        return this.tardiness;
     }
 
     public int getProcessingTime(){
@@ -46,5 +60,13 @@ public class OurSchedule extends LinkedList<Job> {
             newSchedule.add(job);
         }
         return newSchedule;
+    }
+
+    public Job getK(){
+        return longestJob;
+    }
+
+    public int getKIndex(){
+        return this.longestJobIndex;
     }
 }
