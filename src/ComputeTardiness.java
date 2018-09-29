@@ -46,20 +46,20 @@ public class ComputeTardiness {
 		System.out.println("greedy runtime: "+(System.currentTimeMillis()-start));
 		start = System.currentTimeMillis();
 
-		try {
-			BestFirst bestFirst = new BestFirst(instance);
-			Schedule bestFirstSchedule = bestFirst.getSchedule();
-			System.out.println(bestFirstSchedule.getTardiness());
-		}
-		catch(OutOfMemoryError e){
-			System.out.println("best first oom error");
-		}
-        System.out.println("best first runtime: "+(System.currentTimeMillis()-start));
-        start = System.currentTimeMillis();
+//		try {
+//			BestFirst bestFirst = new BestFirst(instance);
+//			Schedule bestFirstSchedule = bestFirst.getSchedule();
+//			System.out.println(bestFirstSchedule.getTardiness());
+//		}
+//		catch(OutOfMemoryError e){
+//			System.out.println("best first oom error");
+//		}
+//        System.out.println("best first runtime: "+(System.currentTimeMillis()-start));
+//        start = System.currentTimeMillis();
 
 		MyAlgo myfunc = new MyAlgo(instance);
 		OurSchedule myFuncSchedule = myfunc.getSchedule();
-		System.out.println(myFuncSchedule.getTardiness());
+		System.out.println(myFuncSchedule.getTardiness(0));
         System.out.println("myAlgo runtime: "+(System.currentTimeMillis()-start));
         start = System.currentTimeMillis();
 	}

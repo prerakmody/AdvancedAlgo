@@ -1,3 +1,5 @@
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedList;
 
 
@@ -15,9 +17,10 @@ public class OurSchedule extends LinkedList<Job> {
 
     public boolean add(Job job){
         if(job!=null) {
-            tardiness += Math.max(0, (this.totalTime + job.processingTime) - job.dueTime);
-            totalTime += job.processingTime;
-            if (longestJob==null || job.processingTime < longestJob.processingTime) {
+//            tardiness += Math.max(0, (job.processingTime) - job.dueTime);
+
+//            totalTime += job.processingTime;
+            if (longestJob==null || job.processingTime > longestJob.processingTime) {
                 longestJobIndex = this.size();
                 longestJob = job;
             }
@@ -26,8 +29,18 @@ public class OurSchedule extends LinkedList<Job> {
         return super.add(job);
     }
 
-    public int getTardiness(){
-        return this.tardiness;
+    public int getTardiness(int timePassed){
+        if(this.size()==0){
+            return 0;
+        }
+        int totalTardiness = 0;
+        int finger = timePassed;
+        for(Job job: this){
+            totalTardiness+=Math.max(0, finger+ job.processingTime-job.dueTime);
+            finger+=job.processingTime;
+        }
+        return totalTardiness;
+//        return this.tardiness+timePassed;
     }
 
     public int getProcessingTime(){
@@ -50,7 +63,11 @@ public class OurSchedule extends LinkedList<Job> {
         return newSchedule;
     }
 
+    public void setTotalTime(int totalTime){
+        this.totalTime=totalTime;
+    }
     public OurSchedule concatenate(OurSchedule otherSchedule){
+//        int timepassed = this.totalTime<otherSchedule.totalTime? this.totalTime: otherSchedule.totalTime;
         OurSchedule newSchedule = new OurSchedule();
 
         for(Job job: this){
@@ -68,5 +85,28 @@ public class OurSchedule extends LinkedList<Job> {
 
     public int getKIndex(){
         return this.longestJobIndex;
+    }
+
+    public int getProcessingTimeSum(){
+        int result = 0;
+        for(Job job: this){
+            result+=job.processingTime;
+        }
+        return result;
+    }
+
+    public String toString(){
+        String result = "[\n";
+        for(Job job : this){
+            result+=job.toString()+",\n";
+        }
+        result+="]";
+        return result;
+    }
+
+    public void sortJobs(){
+        Collections.sort(this,
+                Comparator.comparingInt(a->a.dueTime)
+        );
     }
 }

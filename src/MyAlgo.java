@@ -1,6 +1,7 @@
 import java.lang.*;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashMap;
 
 //private class orderJobsByAscendingDeadline implements Comparator<Integer[]>{
 //    public orderJobsByAscendingDeadline(){
@@ -18,12 +19,13 @@ import java.util.Comparator;
 public class MyAlgo{
     private int numJobs;
     private int[][] jobs;
+    HashMap<OurSchedule, OurSchedule> memoization = new HashMap<OurSchedule, OurSchedule>();
 
     // 1. Constructor
     public MyAlgo(ProblemInstance instance){
         numJobs = instance.getNumJobs();
         jobs    = instance.getJobs();
-        sortJobs();
+        sortJobs();//todo maybe sort for each getschedule
     }
 
     // 2. This function is called by the outside world
@@ -46,11 +48,14 @@ public class MyAlgo{
 
 
 
-        return getSchedule(s, 0, true);
+        return getSchedule(s, 0, 0);
     }
 
     // 3. The private function
-    private OurSchedule getSchedule(OurSchedule schedule, int timePassed, boolean toplevel){
+    private OurSchedule getSchedule(OurSchedule schedule, int timePassed, int level){
+        if( memoization.containsKey(schedule)){
+            return memoization.get(schedule);
+        }
 
 //        System.out.println(schedule);
         int N = schedule.size();
@@ -61,6 +66,7 @@ public class MyAlgo{
         }
 
         if(schedule.size()==1){
+//            schedule.setTotalTime(timePassed);
             return schedule;
         }
 
@@ -69,32 +75,56 @@ public class MyAlgo{
         int kId = schedule.getKIndex();
 
         int minimumTardiness = Integer.MAX_VALUE;
-        for (int delta=0; delta < N-kId; delta++){
+        for (int delta=0; delta <= N-kId; delta++){
 
             OurSchedule jobsBranch1 = schedule.getSubset(0, kId-1).concatenate(schedule.getSubset(kId+1,kId+delta));
             OurSchedule jobsBranch2 = schedule.getSubset(0,kId+delta);
+            int ck = timePassed+jobsBranch2.getProcessingTime();//todo with or without timepassed
             OurSchedule jobsBranch3 = schedule.getSubset(kId+delta+1, N);
 
-            int ck = timePassed+jobsBranch2.getProcessingTime();//todo with or without timepassed
 
 
-            OurSchedule scheduleBranch1 = getSchedule(jobsBranch1, timePassed, false);
+
+            OurSchedule scheduleBranch1 = getSchedule(jobsBranch1, timePassed, level+1);
             OurSchedule scheduleBranch2 = new OurSchedule();
             scheduleBranch2.add(kJob);
-            OurSchedule scheduleBranch3 = getSchedule(jobsBranch3, ck, false);
+            OurSchedule scheduleBranch3 = getSchedule(jobsBranch3, ck, level+1);
 
-            int tardinessBranch1 = scheduleBranch1.getTardiness();
-            int tardinessBranch2 = Math.max(0, ck-kJob.dueTime);
-            int tardinessBranch3 = scheduleBranch3.getTardiness();
+            int tardinessBranch1 = scheduleBranch1.getTardiness(timePassed);
+//            int tardinessBranch2 = Math.max(0, ck-kJob.dueTime);
+            int tardinessBranch2 = jobsBranch2.getTardiness(timePassed);
+            int tardinessBranch3 = scheduleBranch3.getTardiness(ck);
             int totalTardiness = tardinessBranch1+tardinessBranch2+tardinessBranch3;
 
             OurSchedule candidateSchedule = scheduleBranch1.concatenate(scheduleBranch2).concatenate(scheduleBranch3);
+
+
+            if(level==0) {
+                OurSchedule printSchedule=candidateSchedule;
+                System.out.println();
+                System.out.println(printSchedule.getTardiness(timePassed));
+                System.out.println(printSchedule.getProcessingTimeSum());
+                System.out.println(printSchedule.size());
+                System.out.println(printSchedule);
+            }
+
 
             if (totalTardiness<minimumTardiness) {
                 minimumTardiness=totalTardiness; // todo ourschedule and totaltardiness are different in some scenarios.
                 returnSchedule = candidateSchedule;
             }
         }
+
+        if(level==0) {
+            OurSchedule printSchedule=returnSchedule;
+            System.out.println();
+            System.out.println(printSchedule.getTardiness(timePassed));
+            System.out.println(printSchedule.getProcessingTimeSum());
+            System.out.println(printSchedule.size());
+            System.out.println(printSchedule);
+        }
+
+        memoization.put(schedule, returnSchedule);
         return returnSchedule;
     }
 
