@@ -41,7 +41,7 @@ public class MyAlgo{
         if (N == 0){
             return returnSchedule;
         }
-        if(schedule.size()==1){
+        if(N==1) {
             return schedule;
         }
 
@@ -61,22 +61,6 @@ public class MyAlgo{
             OurSchedule jobsBranch2 = schedule.getSubset(0,kId+delta);
             int ck = timePassed+jobsBranch2.getProcessingTime();
             OurSchedule jobsBranch3 = schedule.getSubset(kId+delta+1, N);
-            if (level < 3){ //print pj : [pi's]
-                String precursor = "";
-                for (int ii=0; ii<level;ii++){
-                    precursor += " ";
-                }
-                precursor += "->";
-
-                System.out.println("\n" + precursor + " Level : " + Integer.toString(level) + " || Delta : " + Integer.toString(delta));
-                System.out.println(precursor + " kJob.processingTime : " + Integer.toString(kJob.processingTime));
-                String pis = "[";
-                for(Job job: jobsBranch1){
-                    pis += ", " + Integer.toString(job.processingTime);
-                }
-                pis += "]";
-                System.out.println(precursor + " iJob.processingTime : " + pis);
-            }
 
             // Step 3.3.2 - Split into 3 branches
             OurSchedule scheduleBranch1 = getSchedule(jobsBranch1, timePassed, level+1);
@@ -97,9 +81,8 @@ public class MyAlgo{
                 System.out.println(" \n--> Level : " + Integer.toString(level) + " || Delta : " + Integer.toString(delta));
                 System.out.println(" ----> getTardiness(timePassed) : " + Integer.toString(printSchedule.getTardiness(timePassed)));
                 String tardString = "[" + Integer.toString(tardinessBranch1) + ", " + Integer.toString(tardinessBranch2) + ", " + Integer.toString(tardinessBranch3) + " ]";
-                System.out.println(" ----> totalTardiness : " + Integer.toString(totalTardiness) + " " + tardString);
+                // System.out.println(" ----> totalTardiness : " + Integer.toString(totalTardiness) + " " + tardString);
             }
-
 
             //if (totalTardiness < minimumTardiness) { //this is an ERROR!
             if (candidateSchedule.getTardiness(timePassed) < minimumTardiness){
