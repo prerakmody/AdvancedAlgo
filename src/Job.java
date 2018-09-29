@@ -6,7 +6,6 @@ public class Job {
         this.id=id;
         this.processingTime=processingTime;
         this.dueTime=dueTime;
-
     }
 
 

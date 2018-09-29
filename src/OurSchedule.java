@@ -17,9 +17,6 @@ public class OurSchedule extends LinkedList<Job> {
 
     public boolean add(Job job){
         if(job!=null) {
-//            tardiness += Math.max(0, (job.processingTime) - job.dueTime);
-
-//            totalTime += job.processingTime;
             if (longestJob==null || job.processingTime > longestJob.processingTime) {
                 longestJobIndex = this.size();
                 longestJob = job;
@@ -30,17 +27,19 @@ public class OurSchedule extends LinkedList<Job> {
     }
 
     public int getTardiness(int timePassed){
+        // Terminating Condition - 1
         if(this.size()==0){
             return 0;
         }
+
+        // Terminating Condition - 2 is satisfied here (if this.size() == 1)
         int totalTardiness = 0;
         int finger = timePassed;
         for(Job job: this){
-            totalTardiness+=Math.max(0, finger+ job.processingTime-job.dueTime);
-            finger+=job.processingTime;
+            totalTardiness += Math.max(0, finger + job.processingTime - job.dueTime);
+            finger         += job.processingTime;
         }
         return totalTardiness;
-//        return this.tardiness+timePassed;
     }
 
     public int getProcessingTime(){
