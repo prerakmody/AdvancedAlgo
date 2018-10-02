@@ -36,8 +36,8 @@ public class ComputeTardiness {
 	}
 
 	public static void writeResultsForTestData(){
-		String data_file_directory="/home/niels/projects/AdvancedAlgo/test-set/instances/";
-		String output_path="/home/niels/projects/AdvancedAlgo/output.csv";
+		String data_file_directory="/home/niels/projects/AdvancedAlgo/test-set/lessInstances/";
+		String output_path="/home/niels/projects/AdvancedAlgo/outputMyAlgo.csv";
 		// create a file that is really a directory
 		File aDirectory = new File(data_file_directory);
 

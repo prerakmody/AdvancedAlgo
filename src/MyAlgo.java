@@ -72,20 +72,20 @@ public class MyAlgo{
             OurSchedule scheduleBranch3 = getSchedule(jobsBranch3, ck, level+1);
 
             // Step3.3.3 - Calculate total tardiness
-            int tardinessBranch1 = scheduleBranch1.getTardiness(timePassed);
-            int tardinessBranch2 = jobsBranch2.getTardiness(timePassed);
-            int tardinessBranch3 = scheduleBranch3.getTardiness(ck);
-            int totalTardiness = tardinessBranch1 + tardinessBranch2 + tardinessBranch3;
+//            int tardinessBranch1 = scheduleBranch1.getTardiness(timePassed);
+//            int tardinessBranch2 = jobsBranch2.getTardiness(timePassed);
+//            int tardinessBranch3 = scheduleBranch3.getTardiness(ck);
+//            int totalTardiness = tardinessBranch1 + tardinessBranch2 + tardinessBranch3;
 
             OurSchedule candidateSchedule = scheduleBranch1.concatenate(scheduleBranch2).concatenate(scheduleBranch3);
 
-            if(level==0) {
-                OurSchedule printSchedule = candidateSchedule;
-                System.out.println(" \n--> Level : " + Integer.toString(level) + " || Delta : " + Integer.toString(delta));
-                System.out.println(" ----> getTardiness(timePassed) : " + Integer.toString(printSchedule.getTardiness(timePassed)));
-                String tardString = "[" + Integer.toString(tardinessBranch1) + ", " + Integer.toString(tardinessBranch2) + ", " + Integer.toString(tardinessBranch3) + " ]";
-                // System.out.println(" ----> totalTardiness : " + Integer.toString(totalTardiness) + " " + tardString);
-            }
+//            if(level==0) {
+//                OurSchedule printSchedule = candidateSchedule;
+//                System.out.println(" \n--> Level : " + Integer.toString(level) + " || Delta : " + Integer.toString(delta));
+//                System.out.println(" ----> getTardiness(timePassed) : " + Integer.toString(printSchedule.getTardiness(timePassed)));
+//                String tardString = "[" + Integer.toString(tardinessBranch1) + ", " + Integer.toString(tardinessBranch2) + ", " + Integer.toString(tardinessBranch3) + " ]";
+//                // System.out.println(" ----> totalTardiness : " + Integer.toString(totalTardiness) + " " + tardString);
+//            }
 
             //if (totalTardiness < minimumTardiness) { //this is an ERROR!
             if (candidateSchedule.getTardiness(timePassed) < minimumTardiness){
