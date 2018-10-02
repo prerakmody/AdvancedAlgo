@@ -1,10 +1,11 @@
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.LinkedList;
 
 
 
-public class OurSchedule extends LinkedList<Job> {
+public class OurSchedule extends ArrayList<Job> {
 
     int totalTime = 0;
     int tardiness = 0;
@@ -93,6 +94,13 @@ public class OurSchedule extends LinkedList<Job> {
         }
         return result;
     }
+
+//    public int hashCode(){
+//        if(this.isEmpty()){
+//            return 0;
+//        }
+//        return this.get(0).id*this.longestJobIndex*this.size();
+//    }
 
     public String toString(){
         String result = "[\n";

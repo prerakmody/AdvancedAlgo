@@ -32,9 +32,6 @@ public class MyAlgo{
 
         // Step3.0 - return if same schedule exists
         if( memoization.containsKey(new Tuple(schedule, timePassed))){
-            if(memoization.get(new Tuple(schedule, timePassed))==null){
-                System.out.println("found null");
-            }
             return memoization.get(new Tuple(schedule, timePassed));
         }
 
