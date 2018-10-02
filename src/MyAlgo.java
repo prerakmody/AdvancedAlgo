@@ -7,7 +7,7 @@ import java.util.HashMap;
 public class MyAlgo{
     private int numJobs;
     private int[][] jobs;
-    HashMap<OurSchedule, OurSchedule> memoization = new HashMap<OurSchedule, OurSchedule>();
+    HashMap<Tuple<OurSchedule, Integer>, OurSchedule> memoization = new HashMap<Tuple<OurSchedule, Integer>, OurSchedule>();
 
     // 1. Constructor
     public MyAlgo(ProblemInstance instance){
@@ -31,8 +31,11 @@ public class MyAlgo{
     private OurSchedule getSchedule(OurSchedule schedule, int timePassed, int level){
 
         // Step3.0 - return if same schedule exists
-        if( memoization.containsKey(schedule)){
-            return memoization.get(schedule);
+        if( memoization.containsKey(new Tuple(schedule, timePassed))){
+            if(memoization.get(new Tuple(schedule, timePassed))==null){
+                System.out.println("found null");
+            }
+            return memoization.get(new Tuple(schedule, timePassed));
         }
 
         // Step3.1 - return if terminating conditions --> schedule.size == {0,1}
@@ -91,15 +94,20 @@ public class MyAlgo{
             }
         }
 
-        if(level==0) {
-            System.out.println("\n ------------ FINAL --------------- ");
-            OurSchedule printSchedule=returnSchedule;
-            System.out.println(" ----> Tard : " + Integer.toString(printSchedule.getTardiness(timePassed)));
-            System.out.println(" ----> Tot. Processing Time : " + Integer.toString(printSchedule.getProcessingTimeSum()));
-            System.out.println(printSchedule);
-        }
+//        if(level==0) {
+//            System.out.println("\n ------------ FINAL --------------- ");
+//            OurSchedule printSchedule=returnSchedule;
+//            System.out.println(" ----> Tard : " + Integer.toString(printSchedule.getTardiness(timePassed)));
+//            System.out.println(" ----> Tot. Processing Time : " + Integer.toString(printSchedule.getProcessingTimeSum()));
+//            System.out.println(printSchedule);
+//        }
 
-        memoization.put(schedule, returnSchedule);
+        Tuple memoizeTuple = new Tuple(schedule, timePassed);
+//        if(memoizeTuple==null){
+//            System.out.println("storing null");
+//        }
+        memoization.put(memoizeTuple, returnSchedule);
+//        memoization.put(schedule, returnSchedule);
         return returnSchedule;
     }
 
