@@ -89,10 +89,10 @@ public class ComputeTardiness {
 //	    writeResultsForTestData();
 		ProblemInstance instance = readInstance(args[0]);
 
-		long start1   = System.currentTimeMillis();
-		Greedy greedy = new Greedy(instance);
-		Schedule greedySchedule = greedy.getSchedule();
-		long end1     = System.currentTimeMillis()-start1;
+//		long start1   = System.currentTimeMillis();
+//		Greedy greedy = new Greedy(instance);
+//		Schedule greedySchedule = greedy.getSchedule();
+//		long end1     = System.currentTimeMillis()-start1;
 //		try {
 //			BestFirst bestFirst = new BestFirst(instance);
 //			Schedule bestFirstSchedule = bestFirst.getSchedule();
@@ -111,10 +111,10 @@ public class ComputeTardiness {
 		System.out.println("1. myAlgo min.Tard : " + Integer.toString(myFuncSchedule.getTardiness(0)));
         System.out.println("1. myAlgo runtime : " + (System.currentTimeMillis()-start));
 
-		System.out.println("\n -------------------------------- ");
-		System.out.println("1. Greedy min.Tard : " + Integer.toString(greedySchedule.getTardiness()));
-		System.out.println("1. Greedy runtime : " + end1);
-		System.out.println(" -------------------------------- ");
+//		System.out.println("\n -------------------------------- ");
+//		System.out.println("1. Greedy min.Tard : " + Integer.toString(greedySchedule.getTardiness()));
+//		System.out.println("1. Greedy runtime : " + end1);
+//		System.out.println(" -------------------------------- ");
 
 
 	}

@@ -1,13 +1,16 @@
+import com.sun.org.apache.xml.internal.serialize.OutputFormat;
+
 import java.lang.*;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.List;
 
 @SuppressWarnings("ALL")
 public class MyAlgo{
     private int numJobs;
     private int[][] jobs;
-    HashMap<Tuple<OurSchedule, Integer>, OurSchedule> memoization = new HashMap<Tuple<OurSchedule, Integer>, OurSchedule>();
+    HashMap<OurSchedule, OurSchedule> memoization = new HashMap<OurSchedule, OurSchedule>();
 
     // 1. Constructor
     public MyAlgo(ProblemInstance instance){
@@ -31,8 +34,15 @@ public class MyAlgo{
     private OurSchedule getSchedule(OurSchedule schedule, int timePassed, int level){
 
         // Step3.0 - return if same schedule exists
-        if( memoization.containsKey(new Tuple(schedule, timePassed))){
-            return memoization.get(new Tuple(schedule, timePassed));
+//        if(k!=null) {
+//            Quple candidateQuple = new Quple(i, j, timePassed, k.id);
+//            if (k != null && memoization.containsKey(candidateQuple)) {
+//                return memoization.get(candidateQuple);
+//            }
+//        }
+        OurSchedule memoizationCandidate = memoization.get(schedule);
+        if(memoizationCandidate!=null){
+            return memoizationCandidate;
         }
 
         // Step3.1 - return if terminating conditions --> schedule.size == {0,1}
@@ -63,26 +73,37 @@ public class MyAlgo{
             OurSchedule jobsBranch3 = schedule.getSubset(kId+delta+1, N);
 
             // Step 3.3.2 - Split into 3 branches
+//            OurSchedule scheduleBranch1 = new OurSchedule();
+//            if(!jobsBranch1.isEmpty()){
             OurSchedule scheduleBranch1 = getSchedule(jobsBranch1, timePassed, level+1);
+//            }
+//            OurSchedule scheduleBranch3 = new OurSchedule();
+//            if(!jobsBranch3.isEmpty()){
+            OurSchedule scheduleBranch3 = getSchedule(jobsBranch3, ck, level+1);
+//            }
+
             OurSchedule scheduleBranch2 = new OurSchedule();
             scheduleBranch2.add(kJob);
-            OurSchedule scheduleBranch3 = getSchedule(jobsBranch3, ck, level+1);
-
-            // Step3.3.3 - Calculate total tardiness
-//            int tardinessBranch1 = scheduleBranch1.getTardiness(timePassed);
-//            int tardinessBranch2 = jobsBranch2.getTardiness(timePassed);
-//            int tardinessBranch3 = scheduleBranch3.getTardiness(ck);
-//            int totalTardiness = tardinessBranch1 + tardinessBranch2 + tardinessBranch3;
 
             OurSchedule candidateSchedule = scheduleBranch1.concatenate(scheduleBranch2).concatenate(scheduleBranch3);
-
-//            if(level==0) {
-//                OurSchedule printSchedule = candidateSchedule;
-//                System.out.println(" \n--> Level : " + Integer.toString(level) + " || Delta : " + Integer.toString(delta));
-//                System.out.println(" ----> getTardiness(timePassed) : " + Integer.toString(printSchedule.getTardiness(timePassed)));
+            Integer[] deltas = new Integer[]{94,95};
+            List<Integer> deltasToFilter = Arrays.asList(deltas);
+//            if(level==1 && scheduleBranch1.getTardiness(timePassed)==74857){
+            if(level==0 && Arrays.asList(deltas).contains(delta)) {
+                System.out.println(scheduleBranch1);
+                System.out.println(scheduleBranch2);
+                System.out.println(scheduleBranch3);
+                System.out.println(candidateSchedule);
+                OurSchedule printSchedule = candidateSchedule;
+                System.out.println(ck);
+                System.out.println(kJob.processingTime);
+                System.out.println(scheduleBranch1.getTardiness(0));
+                System.out.println(scheduleBranch3.getTardiness(0));
+                System.out.println(" \n--> Level : " + Integer.toString(level) + " || Delta : " + Integer.toString(delta));
+                System.out.println(" ----> getTardiness(timePassed) : " + printSchedule.getTardiness(timePassed));
 //                String tardString = "[" + Integer.toString(tardinessBranch1) + ", " + Integer.toString(tardinessBranch2) + ", " + Integer.toString(tardinessBranch3) + " ]";
-//                // System.out.println(" ----> totalTardiness : " + Integer.toString(totalTardiness) + " " + tardString);
-//            }
+                // System.out.println(" ----> totalTardiness : " + Integer.toString(totalTardiness) + " " + tardString);
+            }
 
             //if (totalTardiness < minimumTardiness) { //this is an ERROR!
             if (candidateSchedule.getTardiness(timePassed) < minimumTardiness){
@@ -91,20 +112,7 @@ public class MyAlgo{
             }
         }
 
-//        if(level==0) {
-//            System.out.println("\n ------------ FINAL --------------- ");
-//            OurSchedule printSchedule=returnSchedule;
-//            System.out.println(" ----> Tard : " + Integer.toString(printSchedule.getTardiness(timePassed)));
-//            System.out.println(" ----> Tot. Processing Time : " + Integer.toString(printSchedule.getProcessingTimeSum()));
-//            System.out.println(printSchedule);
-//        }
-
-        Tuple memoizeTuple = new Tuple(schedule, timePassed);
-//        if(memoizeTuple==null){
-//            System.out.println("storing null");
-//        }
-        memoization.put(memoizeTuple, returnSchedule);
-//        memoization.put(schedule, returnSchedule);
+        memoization.put(schedule, returnSchedule);
         return returnSchedule;
     }
 
