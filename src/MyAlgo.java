@@ -10,7 +10,7 @@ import java.util.List;
 public class MyAlgo{
     private int numJobs;
     private int[][] jobs;
-    HashMap<OurSchedule, OurSchedule> memoization = new HashMap<OurSchedule, OurSchedule>();
+    HashMap<Tuple<OurSchedule, Integer>, OurSchedule> memoization = new HashMap<Tuple<OurSchedule, Integer>, OurSchedule>();
 
     // 1. Constructor
     public MyAlgo(ProblemInstance instance){
@@ -40,8 +40,13 @@ public class MyAlgo{
 //                return memoization.get(candidateQuple);
 //            }
 //        }
-        OurSchedule memoizationCandidate = memoization.get(schedule);
+        OurSchedule memoizationCandidate = memoization.get(new Tuple(schedule, timePassed));
         if(memoizationCandidate!=null){
+//            if(schedule.size()==3) {
+//                System.out.println();
+//                System.out.println(schedule);
+//                System.out.println(memoizationCandidate);
+//            }
             return memoizationCandidate;
         }
 
@@ -112,7 +117,7 @@ public class MyAlgo{
             }
         }
 
-        memoization.put(schedule, returnSchedule);
+        memoization.put(new Tuple(schedule, timePassed), returnSchedule);
         return returnSchedule;
     }
 

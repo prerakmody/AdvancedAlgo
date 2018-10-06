@@ -18,7 +18,9 @@ public class OurSchedule extends ArrayList<Job> {
 
     public boolean add(Job job){
         if(job!=null) {
-            if (longestJob==null || job.processingTime >= longestJob.processingTime) {
+            if (longestJob==null ||
+                    job.processingTime>longestJob.processingTime ||
+                    (job.processingTime == longestJob.processingTime && job.dueTime>longestJob.dueTime)) {
                 longestJobIndex = this.size();
                 longestJob = job;
             }
