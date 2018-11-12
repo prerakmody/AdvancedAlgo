@@ -2,7 +2,7 @@ import java.io.*;
 import java.util.Arrays;
 import java.util.Scanner;
 
-public class AdvancedAlgo {
+public class ComputeTardiness {
 	public static ProblemInstance readInstance(String filename){
 //		System.out.println(" ------- ");
 //		System.out.println(" - Filename : " + filename);

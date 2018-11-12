@@ -34,19 +34,8 @@ public class MyAlgo{
     private OurSchedule getSchedule(OurSchedule schedule, int timePassed, int level){
 
         // Step3.0 - return if same schedule exists
-//        if(k!=null) {
-//            Quple candidateQuple = new Quple(i, j, timePassed, k.id);
-//            if (k != null && memoization.containsKey(candidateQuple)) {
-//                return memoization.get(candidateQuple);
-//            }
-//        }
         OurSchedule memoizationCandidate = memoization.get(new Tuple(schedule, timePassed));
         if(memoizationCandidate!=null){
-//            if(schedule.size()==3) {
-//                System.out.println();
-//                System.out.println(schedule);
-//                System.out.println(memoizationCandidate);
-//            }
             return memoizationCandidate;
         }
 
@@ -63,9 +52,9 @@ public class MyAlgo{
         // Step3.2 - Calculate max{processingTime} for this schedule
         Job kJob = schedule.getK();
         int kId = schedule.getKIndex();
-        if (level == 0){
-            System.out.println("\n * Level 0 : kJob : " + kJob);
-        }
+//        if (level == 0){
+//            System.out.println("\n * Level 0 : kJob : " + kJob);
+//        }
 
         // Step3.3 - loop over all delta [0,N-kID]
         int minimumTardiness = Integer.MAX_VALUE;
@@ -78,39 +67,14 @@ public class MyAlgo{
             OurSchedule jobsBranch3 = schedule.getSubset(kId+delta+1, N);
 
             // Step 3.3.2 - Split into 3 branches
-//            OurSchedule scheduleBranch1 = new OurSchedule();
-//            if(!jobsBranch1.isEmpty()){
             OurSchedule scheduleBranch1 = getSchedule(jobsBranch1, timePassed, level+1);
-//            }
-//            OurSchedule scheduleBranch3 = new OurSchedule();
-//            if(!jobsBranch3.isEmpty()){
             OurSchedule scheduleBranch3 = getSchedule(jobsBranch3, ck, level+1);
-//            }
 
             OurSchedule scheduleBranch2 = new OurSchedule();
             scheduleBranch2.add(kJob);
 
             OurSchedule candidateSchedule = scheduleBranch1.concatenate(scheduleBranch2).concatenate(scheduleBranch3);
-            Integer[] deltas = new Integer[]{94,95};
-            List<Integer> deltasToFilter = Arrays.asList(deltas);
-//            if(level==1 && scheduleBranch1.getTardiness(timePassed)==74857){
-            if(level==0 && Arrays.asList(deltas).contains(delta)) {
-                System.out.println(scheduleBranch1);
-                System.out.println(scheduleBranch2);
-                System.out.println(scheduleBranch3);
-                System.out.println(candidateSchedule);
-                OurSchedule printSchedule = candidateSchedule;
-                System.out.println(ck);
-                System.out.println(kJob.processingTime);
-                System.out.println(scheduleBranch1.getTardiness(0));
-                System.out.println(scheduleBranch3.getTardiness(0));
-                System.out.println(" \n--> Level : " + Integer.toString(level) + " || Delta : " + Integer.toString(delta));
-                System.out.println(" ----> getTardiness(timePassed) : " + printSchedule.getTardiness(timePassed));
-//                String tardString = "[" + Integer.toString(tardinessBranch1) + ", " + Integer.toString(tardinessBranch2) + ", " + Integer.toString(tardinessBranch3) + " ]";
-                // System.out.println(" ----> totalTardiness : " + Integer.toString(totalTardiness) + " " + tardString);
-            }
 
-            //if (totalTardiness < minimumTardiness) { //this is an ERROR!
             if (candidateSchedule.getTardiness(timePassed) < minimumTardiness){
                 minimumTardiness = candidateSchedule.getTardiness(timePassed);
                 returnSchedule   = candidateSchedule;

@@ -18,11 +18,13 @@ public class OurSchedule extends ArrayList<Job> {
 
     public boolean add(Job job){
         if(job!=null) {
-            if (longestJob==null ||
-                    job.processingTime>longestJob.processingTime ||
-                    (job.processingTime == longestJob.processingTime && job.dueTime>longestJob.dueTime)) {
-                longestJobIndex = this.size();
-                longestJob = job;
+            this.tardiness += Math.max(0, this.totalTime + job.processingTime - job.dueTime);
+            this.totalTime         += job.processingTime;
+
+
+            if (job.biggerK(this.longestJob)) {
+                this.longestJobIndex = this.size();
+                this.longestJob = job;
             }
         }
 
@@ -30,12 +32,7 @@ public class OurSchedule extends ArrayList<Job> {
     }
 
     public int getTardiness(int timePassed){
-        // Terminating Condition - 1
-        if(this.size()==0){
-            return 0;
-        }
-
-        // Terminating Condition - 2 is satisfied here (if this.size() == 1)
+        // Terminating Condition - 1 and 2 are satisfied here
         int totalTardiness = 0;
         int finger = timePassed;
         for(Job job: this){
@@ -69,7 +66,6 @@ public class OurSchedule extends ArrayList<Job> {
         this.totalTime=totalTime;
     }
     public OurSchedule concatenate(OurSchedule otherSchedule){
-//        int timepassed = this.totalTime<otherSchedule.totalTime? this.totalTime: otherSchedule.totalTime;
         OurSchedule newSchedule = new OurSchedule();
 
         for(Job job: this){
@@ -78,6 +74,7 @@ public class OurSchedule extends ArrayList<Job> {
         for(Job job: otherSchedule){
             newSchedule.add(job);
         }
+
         return newSchedule;
     }
 
@@ -96,14 +93,6 @@ public class OurSchedule extends ArrayList<Job> {
         }
         return result;
     }
-
-//    public int hashCode(){
-//        if(this.isEmpty()){
-//            return 0;
-//        }
-//        return this.get(0).id*this.longestJobIndex*this.size();
-//    }
-
     public String toString(){
         String result = "[\n";
         for(Job job : this){
