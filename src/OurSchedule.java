@@ -42,6 +42,19 @@ public class OurSchedule extends ArrayList<Job> {
         return totalTardiness;
     }
 
+    public Double getMostTardyJob(int timePassed){
+        Double maxTardiness = Double.MIN_VALUE;
+        int finger = timePassed;
+        for(Job job: this){
+            Double tardinessCandidate = Math.max(0, finger + job.processingTime - job.dueTime);
+            if(tardinessCandidate > maxTardiness){
+                maxTardiness = tardinessCandidate;
+            }
+            finger         += job.processingTime;
+        }
+        return maxTardiness;
+    }
+
     public int getProcessingTime(){
         int time = 0;
         for(Job job: this){
@@ -104,7 +117,7 @@ public class OurSchedule extends ArrayList<Job> {
 
     public void sortJobs(){
         Collections.sort(this,
-                Comparator.comparingInt(a->a.dueTime)
+                Comparator.comparingDouble(a->a.dueTime)
         );
     }
 }

@@ -1,15 +1,15 @@
 public class Job {
     int id;
-    int processingTime;
-    int dueTime;
-    public Job(int id, int processingTime, int dueTime){
+    Double processingTime;
+    Double dueTime;
+    public Job(int id, Double processingTime, Double dueTime){
         this.id=id;
         this.processingTime=processingTime;
         this.dueTime=dueTime;
     }
 
     public int hashCode(){
-        return id*processingTime*dueTime;
+        return (int) Math.round(id*processingTime*dueTime);
     }
 
     public String toString(){
