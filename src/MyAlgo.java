@@ -27,11 +27,11 @@ public class MyAlgo{
             s.add(new Job(i, new Double(job[0]), new Double(job[1])));
             i++;
         }
-        return getSchedule(s, 0, 0);
+        return getSchedule(s, 0d, 0);
     }
 
     // 3. The private function
-    private OurSchedule getSchedule(OurSchedule schedule, int timePassed, int level){
+    private OurSchedule getSchedule(OurSchedule schedule, Double timePassed, int level){
 
         // Step3.0 - return if same schedule exists
         OurSchedule memoizationCandidate = memoization.get(new Tuple(schedule, timePassed));
@@ -57,13 +57,13 @@ public class MyAlgo{
 //        }
 
         // Step3.3 - loop over all delta [0,N-kID]
-        int minimumTardiness = Integer.MAX_VALUE;
+        Double minimumTardiness = Double.MAX_VALUE;
         for (int delta=0; delta <= N-kId; delta++){
 
             // Step3.3.1 - Split into 3 branches
             OurSchedule jobsBranch1 = schedule.getSubset(0, kId-1).concatenate(schedule.getSubset(kId+1,kId+delta));
             OurSchedule jobsBranch2 = schedule.getSubset(0,kId+delta);
-            int ck = timePassed+jobsBranch2.getProcessingTime();
+            Double ck = timePassed+jobsBranch2.getProcessingTime();
             OurSchedule jobsBranch3 = schedule.getSubset(kId+delta+1, N);
 
             // Step 3.3.2 - Split into 3 branches

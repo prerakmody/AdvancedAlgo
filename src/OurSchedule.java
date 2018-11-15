@@ -12,6 +12,7 @@ public class OurSchedule extends ArrayList<Job> {
     int longestJobIndex = 0;
     Job longestJob = null;
 
+
     public OurSchedule(){
         super();
     }
@@ -31,10 +32,10 @@ public class OurSchedule extends ArrayList<Job> {
         return super.add(job);
     }
 
-    public int getTardiness(int timePassed){
+    public Double getTardiness(Double timePassed){
         // Terminating Condition - 1 and 2 are satisfied here
-        int totalTardiness = 0;
-        int finger = timePassed;
+        Double totalTardiness = 0d;
+        Double finger = timePassed;
         for(Job job: this){
             totalTardiness += Math.max(0, finger + job.processingTime - job.dueTime);
             finger         += job.processingTime;
@@ -56,11 +57,11 @@ public class OurSchedule extends ArrayList<Job> {
     }
 
     public int getProcessingTime(){
-        int time = 0;
-        for(Job job: this){
-            time+=job.processingTime;
-        }
-        return time;
+//        int time = 0;
+//        for(Job job: this){
+//            time+=job.processingTime;
+//        }
+        return totalTime;
     }
 
     public OurSchedule getSubset(int startIndex, int endIndex){
