@@ -9,7 +9,7 @@ public class Job {
     }
 
     public int hashCode(){
-        return (int) Math.round(id*processingTime*dueTime);
+        return id;
     }
 
     public String toString(){
@@ -22,6 +22,14 @@ public class Job {
                 this.processingTime>other.processingTime ||
                 (this.processingTime == other.processingTime && this.dueTime>other.dueTime)) {
             return true;
+        }
+        return false;
+    }
+
+    public boolean equals(Object other){
+        if(other instanceof Job){
+            Job otherJob = (Job) other;
+            return this.id == otherJob.id;
         }
         return false;
     }

@@ -44,10 +44,11 @@ public class ComputeTardiness {
 
         File aDirectory = new File(data_file_directory);
         String[] filesInDir = aDirectory.list();
-//        Arrays.sort(filesInDir);
+        Arrays.sort(filesInDir);
 //
 //        String[] regexes = new String[]{"#(30|60)", "RDD=0.[36]_TF=0.[36]"};
-        String fileFilterRegex = ".*(?:#(?:30|60)|RDD=0\\.[36]_TF=0\\.[36]).*";
+        String fileFilterRegex = ".*(?:#80).*";
+//        String fileFilterRegex = ".*(?:#(?:30|60)|RDD=0\\.[46]_TF=0\\.[46]).*";
 
         String result = "fileName;resultBestFirst;resultLawler;runtimeBestFirst;runtimeLawler;\n";
         for(String fileName: filesInDir){
@@ -62,16 +63,16 @@ public class ComputeTardiness {
             long runtimeBestFirst = -1;
             long tardinessBestFirst = -1;
 
-            try {
-                BestFirst bestFirst = new BestFirst(instance);
-                Schedule bestFirstSchedule = bestFirst.getSchedule();
-
-                tardinessBestFirst = bestFirstSchedule.getTardiness();
-                runtimeBestFirst = System.currentTimeMillis()-startBestFirst;
-            }
-            catch(OutOfMemoryError e){
-                    //error values are preset at initialization
-            }
+//            try {
+//                BestFirst bestFirst = new BestFirst(instance);
+//                Schedule bestFirstSchedule = bestFirst.getSchedule();
+//
+//                tardinessBestFirst = bestFirstSchedule.getTardiness();
+//                runtimeBestFirst = System.currentTimeMillis()-startBestFirst;
+//            }
+//            catch(OutOfMemoryError e){
+//                    //error values are preset at initialization
+//            }
 
 
             long startLawler = System.currentTimeMillis();
@@ -80,6 +81,7 @@ public class ComputeTardiness {
             long lawlerRuntime = System.currentTimeMillis()-startLawler;
             Double lawlerTardiness = lawlerSchedule.getTardiness(0d);
 
+            System.out.println(String.format("%s;%s;%s;%s;%s;\n", fileName, tardinessBestFirst, lawlerTardiness, runtimeBestFirst, lawlerRuntime));
             result += String.format("%s;%s;%s;%s;%s;\n", fileName, tardinessBestFirst, lawlerTardiness, runtimeBestFirst, lawlerRuntime);
         }
 
@@ -144,7 +146,7 @@ public class ComputeTardiness {
 //		MyAlgo2 myfunc = new MyAlgo2(instance);
 //		OurSchedule myFuncSchedule = myfunc.getSchedule(epsilon);
 //		long runtimeApproximate = System.currentTimeMillis()-startApproximate;
-//
+//////
 		long startOptimal = System.currentTimeMillis();
 		MyAlgo myOptimalFunc = new MyAlgo(instance);
 		OurSchedule myOptSchedule = myOptimalFunc.getSchedule();

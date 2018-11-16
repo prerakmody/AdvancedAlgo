@@ -6,20 +6,25 @@ import java.util.LinkedList;
 
 
 public class OurSchedule extends ArrayList<Job> {
-
-    int totalTime = 0;
-    int tardiness = 0;
+    Double totalTime = 0d;
+//    Double tardiness = 0d;
     int longestJobIndex = 0;
     Job longestJob = null;
-
+    Job highestDueTime = null;
+    Job lowestDueTime = null;
+//    int firstJobId = -1;
+//    int lastJobId = -1;
+//    Double startTime = 0d;
 
     public OurSchedule(){
         super();
+//        this.startTime=0d;
+//        this.totalTime=this.startTime;
     }
 
     public boolean add(Job job){
         if(job!=null) {
-            this.tardiness += Math.max(0, this.totalTime + job.processingTime - job.dueTime);
+//            this.tardiness += Math.max(0, this.totalTime + job.processingTime - job.dueTime);
             this.totalTime         += job.processingTime;
 
 
@@ -27,7 +32,18 @@ public class OurSchedule extends ArrayList<Job> {
                 this.longestJobIndex = this.size();
                 this.longestJob = job;
             }
+
+            if(highestDueTime==null || job.dueTime>highestDueTime.dueTime){
+                highestDueTime = job;
+            }
+            if(lowestDueTime==null || job.dueTime<lowestDueTime.dueTime){
+                lowestDueTime = job;
+            }
+
+
+
         }
+
 
         return super.add(job);
     }
@@ -43,6 +59,20 @@ public class OurSchedule extends ArrayList<Job> {
         return totalTardiness;
     }
 
+    public int getLowestDueTimeJobId(){
+        if(lowestDueTime==null){
+            return -1;
+        }
+        return lowestDueTime.id;
+    }
+
+    public int getHighestDueTimeJobId(){
+        if(highestDueTime==null){
+            return -1;
+        }
+        return highestDueTime.id;
+    }
+
     public Double getMostTardyJob(int timePassed){
         Double maxTardiness = Double.MIN_VALUE;
         int finger = timePassed;
@@ -56,7 +86,7 @@ public class OurSchedule extends ArrayList<Job> {
         return maxTardiness;
     }
 
-    public int getProcessingTime(){
+    public Double getProcessingTime(){
 //        int time = 0;
 //        for(Job job: this){
 //            time+=job.processingTime;
@@ -76,9 +106,9 @@ public class OurSchedule extends ArrayList<Job> {
         return newSchedule;
     }
 
-    public void setTotalTime(int totalTime){
-        this.totalTime=totalTime;
-    }
+//    public void setTotalTime(int totalTime){
+//        this.totalTime=totalTime;
+//    }
     public OurSchedule concatenate(OurSchedule otherSchedule){
         OurSchedule newSchedule = new OurSchedule();
 
@@ -115,6 +145,35 @@ public class OurSchedule extends ArrayList<Job> {
         result+="]";
         return result;
     }
+
+//    public int hashCode(){
+//        if(this.size()==0){
+//            return -1;
+//        }
+//        return this.get(0).id*(int)Math.pow(this.lastJob.id,2)*(int)Math.pow(this.size(),3);
+//    }
+//
+//    public boolean equals(Object other){
+//        if(other instanceof OurSchedule){
+//            OurSchedule otherSchedule = (OurSchedule) other;
+//            //todo consider adding timestarted to constructor to allow full comparison
+//            if(this.size()==otherSchedule.size() &&
+//                    this.longestJob.equals(otherSchedule.longestJob) &&
+//                    this.lastJob.equals(otherSchedule.lastJob)
+//            ){
+//                return true;
+//            }
+//            //remove this
+////            return super.equals(otherSchedule);
+////            for(int i=0; i<this.size(); i++){
+////                if(!this.get(i).equals(otherSchedule.get(i))){
+////                    return false;
+////                }
+////            }
+////            return true;
+//        }
+//        return false;
+//    }
 
     public void sortJobs(){
         Collections.sort(this,

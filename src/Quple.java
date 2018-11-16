@@ -10,8 +10,17 @@ public class Quple<W, X, Y, Z> {
         this.z = z;
     }
 
+//    public int hashCode(){
+//        return w.hashCode()*
+//                (int)Math.pow(x.hashCode(),2)*
+//                (int)Math.pow(y.hashCode(),3)*
+//                (int)Math.pow(z.hashCode(),4);
+//    }
     public int hashCode(){
-        return w.hashCode()*x.hashCode()*y.hashCode()*z.hashCode();
+        return w.hashCode()*
+                x.hashCode()*
+                y.hashCode()*
+                z.hashCode();
     }
 
     public boolean equals(Object other){
@@ -20,5 +29,9 @@ public class Quple<W, X, Y, Z> {
             return this.x.equals(otherQuple.x) && this.y.equals(otherQuple.y) && w.equals(otherQuple.w) && z.equals(otherQuple.z);
         }
         return false;
+    }
+
+    public String toString(){
+        return String.format("%s %s %s %s", w,x,y,z);
     }
 }
