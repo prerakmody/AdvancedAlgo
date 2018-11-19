@@ -1,33 +1,60 @@
-import com.sun.org.apache.xml.internal.serialize.OutputFormat;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.HashMap;
 
-import java.lang.*;
-import java.util.*;
+public class lawlerApprox {
 
-@SuppressWarnings("ALL")
-public class MyAlgo{
     private int numJobs;
     private int[][] jobs;
-
-    boolean printedOnce = false;
-    int printCounter = 0;
     HashMap<Tuple<OurSchedule, Integer>, OurSchedule> memoization = new HashMap<Tuple<OurSchedule, Integer>, OurSchedule>();
 
     // 1. Constructor
-    public MyAlgo(ProblemInstance instance){
+    public lawlerApprox(ProblemInstance instance){
         numJobs = instance.getNumJobs();
         jobs    = instance.getJobs();
-        sortJobs();
+        sortJobsEDD();
+
+
     }
 
     // 2. This function is called by the outside world
-    public OurSchedule getSchedule(){
-        OurSchedule s = new OurSchedule();
-        int i=0;
+    public OurSchedule getSchedule(Double epsilon){
+        OurSchedule scaledSchedule = new OurSchedule();
+        OurSchedule schedule = new OurSchedule();
+        int i = 0;
         for(int[] job: jobs){ //on the sorted jobs
-            s.add(new Job(i, new Double(job[0]), new Double(job[1])));
+            Double processingTime = new Double(job[0]);
+            Double dueTime = new Double(job[1]);
+            schedule.add(new Job(i, processingTime, dueTime));
+            scaledSchedule.add(new Job(i, processingTime, dueTime));
             i++;
         }
-        return getSchedule(s, 0d, 0);
+        Double Tmax = schedule.getMostTardyJob(0);
+
+        if(Tmax == 0){
+            return schedule;
+        }
+        int n = schedule.size();
+        Double K = (2*epsilon*Tmax)/(n*(n+1));
+
+        for(Job job: scaledSchedule){
+            job.processingTime = Math.floor(job.processingTime/K);
+            job.dueTime = job.dueTime/K;
+        }
+        OurSchedule approximateScaledSchedule = this.getSchedule(scaledSchedule,0d,0);
+        OurSchedule resultSchedule = new OurSchedule();
+        for(Job scaledJob: approximateScaledSchedule){
+            for(Job job: schedule){
+                if(scaledJob.id==job.id){
+                    resultSchedule.add(job);
+                    break;
+                }
+            }
+        }
+        return resultSchedule;
+
+
     }
 
     private ArrayList<Integer> getReducedDeltas(OurSchedule input_schedule, Double input_dueTime, int kId, Double timePassed, int level){
@@ -48,7 +75,7 @@ public class MyAlgo{
 //                    System.out.println(d_k);
 //
 //                }
-                printCounter++;
+//                printCounter++;
                 if (dk_prime > d_k) {
                     d_k = dk_prime;
                 }
@@ -181,9 +208,9 @@ public class MyAlgo{
 
     ////////////////////////////////////// HELPER FUNCTIONS //////////////////////////////////////
 
-    private void sortJobs(){
+    private void sortJobsEDD(){
         Arrays.sort(jobs,
-         Comparator.comparingInt(a->a[1])
+                Comparator.comparingInt(a->a[1])
         );
     }
 }

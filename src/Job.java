@@ -33,4 +33,8 @@ public class Job {
         }
         return false;
     }
+
+    public Job clone(){
+        return new Job(this.id, this.processingTime, this.dueTime);
+    }
 }

@@ -86,6 +86,18 @@ public class OurSchedule extends ArrayList<Job> {
         return maxTardiness;
     }
 
+    public int findIndex(Job job){
+        int i = 0;
+
+        for(Job otherJob: this){
+            if(job.equals(otherJob)){
+                break;
+            }
+            i++;
+        }
+        return i;
+    }
+
     public Double getProcessingTime(){
 //        int time = 0;
 //        for(Job job: this){
@@ -122,6 +134,27 @@ public class OurSchedule extends ArrayList<Job> {
         return newSchedule;
     }
 
+    public OurSchedule clone() {
+        OurSchedule result = new OurSchedule();
+        for(Job job: this){
+            result.add(job.clone());
+        }
+        return result;
+    }
+
+    public Job findClosestNonTardyJob(Double timestamp){
+        //todo might be an edge case due to result vs job duetime
+        Job result = null;
+        for(Job job: this) {
+            if(job.dueTime<=timestamp){
+                if(result==null || result.dueTime<=job.dueTime){
+                    result = job;
+                }
+            }
+        }
+        return result;
+    }
+
     public Job getK(){
         return longestJob;
     }
@@ -129,6 +162,27 @@ public class OurSchedule extends ArrayList<Job> {
     public int getKIndex(){
         return this.longestJobIndex;
     }
+
+    public OurSchedule getSubsetWithDeadlineLEQ(double timestamp){
+        OurSchedule result = new OurSchedule();
+        for(Job job:this){
+            if(job.dueTime<=timestamp){
+                result.add(job);
+            }
+        }
+        return result;
+    }
+
+    public OurSchedule getSubsetWithDeadlineGthan(double timestamp){
+        OurSchedule result = new OurSchedule();
+        for(Job job:this){
+            if(job.dueTime>timestamp){
+                result.add(job);
+            }
+        }
+        return result;
+    }
+
 
     public int getProcessingTimeSum(){
         int result = 0;

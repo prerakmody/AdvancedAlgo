@@ -142,10 +142,15 @@ public class ComputeTardiness {
 		ProblemInstance instance = readInstance(args[1]);
 //
 //
-//		long startApproximate   = System.currentTimeMillis();
-//		MyAlgo2 myfunc = new MyAlgo2(instance);
-//		OurSchedule myFuncSchedule = myfunc.getSchedule(epsilon);
-//		long runtimeApproximate = System.currentTimeMillis()-startApproximate;
+		long startApproximateOptimized   = System.currentTimeMillis();
+		lawlerApprox lawlerApprox = new lawlerApprox(instance);
+		OurSchedule optimizedSchedule = lawlerApprox.getSchedule(epsilon);
+		long optimizedTardinessTime = System.currentTimeMillis()-startApproximateOptimized;
+
+		long startApproximate   = System.currentTimeMillis();
+		MyAlgo2 myfunc = new MyAlgo2(instance);
+		OurSchedule myFuncSchedule = myfunc.getSchedule(epsilon);
+		long runtimeApproximate = System.currentTimeMillis()-startApproximate;
 //////
 		long startOptimal = System.currentTimeMillis();
 		MyAlgo myOptimalFunc = new MyAlgo(instance);
@@ -155,13 +160,16 @@ public class ComputeTardiness {
 //
 //		System.out.println(myOptSchedule.getTardiness(0)+ " " + myFuncSchedule.getTardiness(0));
 //
-//		System.out.print(myFuncSchedule.getTardiness(0));
-//		System.out.println("\n -------------------------------- ");
-//		System.out.println("1. approximate min.Tard : " + Integer.toString(myFuncSchedule.getTardiness(0)));
-//        System.out.println("1. approximate runtime : " + (runtimeApproximate));
+		System.out.print(myFuncSchedule.getTardiness(0d));
+		System.out.println("\n -------------------------------- ");
+		System.out.println("1. approximate min.Tard : " + myFuncSchedule.getTardiness(0d));
+        System.out.println("1. approximate runtime : " + (runtimeApproximate));
 //
 		System.out.println("2. exact min.Tard : " + myOptSchedule.getTardiness(0d));
 		System.out.println("2. exact runtime : " + (runtimeOptimal));
+
+		System.out.println("3. lawlerApprox min.Tard : " + optimizedSchedule.getTardiness(0d));
+		System.out.println("3. lawlerApprox runtime : " + optimizedTardinessTime);
 
 //		System.out.println("\n -------------------------------- ");
 //		System.out.println("1. Greedy min.Tard : " + Integer.toString(greedySchedule.getTardiness()));
