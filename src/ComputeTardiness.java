@@ -137,44 +137,52 @@ public class ComputeTardiness {
 
 	// reads a problem, and outputs the result of both greedy and best-first
     public static void main (String args[]) {
-//	    writeResultsForTestData();
-		Double epsilon = Double.valueOf(args[0]);
-		ProblemInstance instance = readInstance(args[1]);
-//
-//
-		long startApproximateOptimized   = System.currentTimeMillis();
-		lawlerApprox lawlerApprox = new lawlerApprox(instance);
-		OurSchedule optimizedSchedule = lawlerApprox.getSchedule(epsilon);
-		long optimizedTardinessTime = System.currentTimeMillis()-startApproximateOptimized;
+		int writeCsv = 0;
+		if (writeCsv == 1){
+			writeResultsForTestData();
+		}else{
+			Double epsilon = Double.valueOf(args[0]);
+			ProblemInstance instance = readInstance(args[1]);
 
-		long startApproximate   = System.currentTimeMillis();
-		MyAlgo2 myfunc = new MyAlgo2(instance);
-		OurSchedule myFuncSchedule = myfunc.getSchedule(epsilon);
-		long runtimeApproximate = System.currentTimeMillis()-startApproximate;
+			//
+//
+//		long startApproximateOptimized   = System.currentTimeMillis();
+//		lawlerApprox lawlerApprox = new lawlerApprox(instance);
+//		OurSchedule optimizedSchedule = lawlerApprox.getSchedule(epsilon);
+//		long optimizedTardinessTime = System.currentTimeMillis()-startApproximateOptimized;
+//
+//		long startApproximate   = System.currentTimeMillis();
+//		MyAlgo2 myfunc = new MyAlgo2(instance);
+//		OurSchedule myFuncSchedule = myfunc.getSchedule(epsilon);
+//		long runtimeApproximate = System.currentTimeMillis()-startApproximate;
 //////
-		long startOptimal = System.currentTimeMillis();
-		MyAlgo myOptimalFunc = new MyAlgo(instance);
-		OurSchedule myOptSchedule = myOptimalFunc.getSchedule();
-		long runtimeOptimal = System.currentTimeMillis()-startOptimal;
+			long startOptimal = System.currentTimeMillis();
+			MyAlgo myOptimalFunc = new MyAlgo(instance);
+			OurSchedule myOptSchedule = myOptimalFunc.getSchedule();
+			long runtimeOptimal = System.currentTimeMillis()-startOptimal;
 //
 //
 //		System.out.println(myOptSchedule.getTardiness(0)+ " " + myFuncSchedule.getTardiness(0));
 //
-		System.out.print(myFuncSchedule.getTardiness(0d));
-		System.out.println("\n -------------------------------- ");
-		System.out.println("1. approximate min.Tard : " + myFuncSchedule.getTardiness(0d));
-        System.out.println("1. approximate runtime : " + (runtimeApproximate));
+//		System.out.print(myFuncSchedule.getTardiness(0d));
+			System.out.println("\n -------------------------------- ");
+//		System.out.println("1. approximate min.Tard : " + myFuncSchedule.getTardiness(0d));
+//        System.out.println("1. approximate runtime : " + (runtimeApproximate));
 //
-		System.out.println("2. exact min.Tard : " + myOptSchedule.getTardiness(0d));
-		System.out.println("2. exact runtime : " + (runtimeOptimal));
+			System.out.println("2. exact min.Tard : " + myOptSchedule.getTardiness(0d));
+			System.out.println("2. exact runtime : " + (runtimeOptimal));
 
-		System.out.println("3. lawlerApprox min.Tard : " + optimizedSchedule.getTardiness(0d));
-		System.out.println("3. lawlerApprox runtime : " + optimizedTardinessTime);
+//		System.out.println("3. lawlerApprox min.Tard : " + optimizedSchedule.getTardiness(0d));
+//		System.out.println("3. lawlerApprox runtime : " + optimizedTardinessTime);
 
 //		System.out.println("\n -------------------------------- ");
 //		System.out.println("1. Greedy min.Tard : " + Integer.toString(greedySchedule.getTardiness()));
 //		System.out.println("1. Greedy runtime : " + end1);
 //		System.out.println(" -------------------------------- ");
+		}
+
+
+
 
 
 	}

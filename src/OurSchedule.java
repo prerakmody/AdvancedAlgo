@@ -7,47 +7,43 @@ import java.util.LinkedList;
 
 public class OurSchedule extends ArrayList<Job> {
     Double totalTime = 0d;
-//    Double tardiness = 0d;
     int longestJobIndex = 0;
     Job longestJob = null;
     Job highestDueTime = null;
     Job lowestDueTime = null;
-//    int firstJobId = -1;
-//    int lastJobId = -1;
-//    Double startTime = 0d;
+    //    Double tardiness = 0d;
 
     public OurSchedule(){
         super();
-//        this.startTime=0d;
-//        this.totalTime=this.startTime;
     }
 
+    /* ---------------------------------------
+        These functions are called in getSchedule()
+     --------------------------------------- */
     public boolean add(Job job){
         if(job!=null) {
 //            this.tardiness += Math.max(0, this.totalTime + job.processingTime - job.dueTime);
             this.totalTime         += job.processingTime;
 
-
+            // To find kJob with longest processing time
             if (job.biggerK(this.longestJob)) {
                 this.longestJobIndex = this.size();
                 this.longestJob = job;
             }
 
+            // To find job with highest/lowest dueTime ([NIELS] do we have to do this at every stage???)
             if(highestDueTime==null || job.dueTime>highestDueTime.dueTime){
                 highestDueTime = job;
             }
             if(lowestDueTime==null || job.dueTime<lowestDueTime.dueTime){
                 lowestDueTime = job;
             }
-
-
-
         }
-
 
         return super.add(job);
     }
 
+    // [NIELS] Lets optimize this
     public Double getTardiness(Double timePassed){
         // Terminating Condition - 1 and 2 are satisfied here
         Double totalTardiness = 0d;
@@ -59,18 +55,72 @@ public class OurSchedule extends ArrayList<Job> {
         return totalTardiness;
     }
 
-    public int getLowestDueTimeJobId(){
-        if(lowestDueTime==null){
-            return -1;
+    /* ---------------------------------------
+        These functions are called in getReducedDeltas()
+     --------------------------------------- */
+    public OurSchedule getSubsetWithDeadlineLEQ(double timestamp){
+        OurSchedule result = new OurSchedule();
+        for(Job job:this){
+            if(job.dueTime<=timestamp){
+                result.add(job); //[NIELS] We could optimize this to not do job comarisons and directly return processingTime
+            }
         }
-        return lowestDueTime.id;
+        return result;
     }
 
-    public int getHighestDueTimeJobId(){
-        if(highestDueTime==null){
-            return -1;
+    public Double getSubsetTimeWithDeadlineLEQ(double timestamp){
+        Double result = 0D;
+        for(Job job:this){
+            if(job.dueTime<=timestamp){
+                result += job.processingTime; //[NIELS] We could optimize this to not do job comarisons and directly return processingTime
+            }
         }
-        return highestDueTime.id;
+        return result;
+    }
+
+    public OurSchedule getSubsetWithDeadlineGthan(double timestamp){
+        OurSchedule result = new OurSchedule();
+        for(Job job:this){
+            if(job.dueTime>timestamp){
+                result.add(job);
+            }
+        }
+        return result;
+    }
+
+    public Job findClosestNonTardyJob(Double timestamp){
+        //todo might be an edge case due to result vs job duetime
+        Job result = null;
+        for(Job job: this) {
+            if(job.dueTime<=timestamp){
+                if(result==null || result.dueTime<=job.dueTime){
+                    result = job;
+                }
+            }
+        }
+        return result;
+    }
+
+    public int findIndex(Job job){
+        int i = 0;
+        for(Job otherJob: this){
+            if(job.equals(otherJob)){
+                break;
+            }
+            i++;
+        }
+        return i;
+    }
+    /* ---------------------------------------
+        UNCATEGORIZED
+     --------------------------------------- */
+    public String toString(){
+        String result = "[\n";
+        for(Job job : this){
+            result+=job.toString()+",\n";
+        }
+        result+="]";
+        return result;
     }
 
     public Double getMostTardyJob(int timePassed){
@@ -84,18 +134,6 @@ public class OurSchedule extends ArrayList<Job> {
             finger         += job.processingTime;
         }
         return maxTardiness;
-    }
-
-    public int findIndex(Job job){
-        int i = 0;
-
-        for(Job otherJob: this){
-            if(job.equals(otherJob)){
-                break;
-            }
-            i++;
-        }
-        return i;
     }
 
     public Double getProcessingTime(){
@@ -118,9 +156,6 @@ public class OurSchedule extends ArrayList<Job> {
         return newSchedule;
     }
 
-//    public void setTotalTime(int totalTime){
-//        this.totalTime=totalTime;
-//    }
     public OurSchedule concatenate(OurSchedule otherSchedule){
         OurSchedule newSchedule = new OurSchedule();
 
@@ -142,18 +177,7 @@ public class OurSchedule extends ArrayList<Job> {
         return result;
     }
 
-    public Job findClosestNonTardyJob(Double timestamp){
-        //todo might be an edge case due to result vs job duetime
-        Job result = null;
-        for(Job job: this) {
-            if(job.dueTime<=timestamp){
-                if(result==null || result.dueTime<=job.dueTime){
-                    result = job;
-                }
-            }
-        }
-        return result;
-    }
+
 
     public Job getK(){
         return longestJob;
@@ -163,25 +187,7 @@ public class OurSchedule extends ArrayList<Job> {
         return this.longestJobIndex;
     }
 
-    public OurSchedule getSubsetWithDeadlineLEQ(double timestamp){
-        OurSchedule result = new OurSchedule();
-        for(Job job:this){
-            if(job.dueTime<=timestamp){
-                result.add(job);
-            }
-        }
-        return result;
-    }
 
-    public OurSchedule getSubsetWithDeadlineGthan(double timestamp){
-        OurSchedule result = new OurSchedule();
-        for(Job job:this){
-            if(job.dueTime>timestamp){
-                result.add(job);
-            }
-        }
-        return result;
-    }
 
 
     public int getProcessingTimeSum(){
@@ -191,47 +197,28 @@ public class OurSchedule extends ArrayList<Job> {
         }
         return result;
     }
-    public String toString(){
-        String result = "[\n";
-        for(Job job : this){
-            result+=job.toString()+",\n";
-        }
-        result+="]";
-        return result;
-    }
 
-//    public int hashCode(){
-//        if(this.size()==0){
-//            return -1;
-//        }
-//        return this.get(0).id*(int)Math.pow(this.lastJob.id,2)*(int)Math.pow(this.size(),3);
-//    }
-//
-//    public boolean equals(Object other){
-//        if(other instanceof OurSchedule){
-//            OurSchedule otherSchedule = (OurSchedule) other;
-//            //todo consider adding timestarted to constructor to allow full comparison
-//            if(this.size()==otherSchedule.size() &&
-//                    this.longestJob.equals(otherSchedule.longestJob) &&
-//                    this.lastJob.equals(otherSchedule.lastJob)
-//            ){
-//                return true;
-//            }
-//            //remove this
-////            return super.equals(otherSchedule);
-////            for(int i=0; i<this.size(); i++){
-////                if(!this.get(i).equals(otherSchedule.get(i))){
-////                    return false;
-////                }
-////            }
-////            return true;
-//        }
-//        return false;
-//    }
+
 
     public void sortJobs(){
         Collections.sort(this,
                 Comparator.comparingDouble(a->a.dueTime)
         );
+    }
+
+    // UNUSED FUNCTIONS
+
+    public int getLowestDueTimeJobId(){
+        if(lowestDueTime==null){
+            return -1;
+        }
+        return lowestDueTime.id;
+    }
+
+    public int getHighestDueTimeJobId(){
+        if(highestDueTime==null){
+            return -1;
+        }
+        return highestDueTime.id;
     }
 }
