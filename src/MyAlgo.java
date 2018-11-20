@@ -89,15 +89,8 @@ public class MyAlgo{
         ArrayList<Integer> reducedDeltas = new ArrayList<>();
         if(true) {
             reducedDeltas = getReducedDeltas(schedule, (double) kJob.dueTime, kId, timePassed, level);
-            if (level == 0){
+            if (level == -1){
                 System.out.println("===== DELTA SITUATION (level=0) =====");
-                System.out.println(" - Total Jobs : " + Integer.toString(N));
-                Double reduction = 1 - reducedDeltas.size()/Double.valueOf(N-kId);
-                System.out.println(" - Delta Len : " + Integer.toString(reducedDeltas.size()) + " || N-kId : " + Integer.toString(N-kId) + " || Reduction % in loops : " + reduction);
-                System.out.println();
-            }
-            if (level == 1){
-                System.out.println("===== DELTA SITUATION (level=1) =====");
                 System.out.println(" - Total Jobs : " + Integer.toString(N));
                 Double reduction = 1 - reducedDeltas.size()/Double.valueOf(N-kId);
                 System.out.println(" - Delta Len : " + Integer.toString(reducedDeltas.size()) + " || N-kId : " + Integer.toString(N-kId) + " || Reduction % in loops : " + reduction);
@@ -109,6 +102,7 @@ public class MyAlgo{
             }
         }
         Double minimumTardiness = Double.MAX_VALUE;
+        int method = 0;
         for (int delta: reducedDeltas){
             OurSchedule jobsBranch1 = schedule.getSubset(0, kId-1).concatenate(schedule.getSubset(kId+1,kId+delta));
             OurSchedule jobsBranch2 = schedule.getSubset(0,kId+delta);
@@ -116,10 +110,40 @@ public class MyAlgo{
             OurSchedule jobsBranch3 = schedule.getSubset(kId+delta+1, N);
 
             // [NIELS] Does this have any effect?
+            // Step 3.3.2 - Split into 3 branches
+            OurSchedule scheduleBranch1  = new OurSchedule();
+            OurSchedule scheduleBranch3  = new OurSchedule();
+            if (method == 1){
+                scheduleBranch1 = getSchedule(jobsBranch1, timePassed, level+1);
+                scheduleBranch3 = getSchedule(jobsBranch3, ck, level+1);
+            }else{
+                // Method2 - Check if optimal schedule exists, if not, calculate and memoize it.
+                OurSchedule candidateBranch1 = memoization.get(new Tuple(jobsBranch1, timePassed));
+
+                if(candidateBranch1!=null){
+                    // System.out.println("Found match for branch1");
+                    scheduleBranch1 = candidateBranch1;
+                }else{
+                    scheduleBranch1 = getSchedule(jobsBranch1, timePassed, level+1);
+                    memoization.put(new Tuple(jobsBranch1, timePassed), scheduleBranch1);
+                }
+
+                // Method2 - Check if optimal schedule exists, if not, calculate and memoize it.
+                OurSchedule candidateBranch3 = memoization.get(new Tuple(jobsBranch3, ck));
+                if(candidateBranch3!=null){
+                    // System.out.println("Found match for branch3");
+                    scheduleBranch3 = candidateBranch3;
+                }else{
+                    scheduleBranch3 = getSchedule(jobsBranch3, ck, level+1);
+                    memoization.put(new Tuple(jobsBranch3, ck), scheduleBranch3);
+                }
+
+            }
 
             // Step 3.3.2 - Split into 3 branches
-            OurSchedule scheduleBranch1 = getSchedule(jobsBranch1, timePassed, level+1);
-            OurSchedule scheduleBranch3 = getSchedule(jobsBranch3, ck, level+1);
+            //OurSchedule scheduleBranch1 = getSchedule(jobsBranch1, timePassed, level+1);
+            //OurSchedule scheduleBranch3 = getSchedule(jobsBranch3, ck, level+1);
+
             OurSchedule scheduleBranch2 = new OurSchedule();
             scheduleBranch2.add(kJob);
 

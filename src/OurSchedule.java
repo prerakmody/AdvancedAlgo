@@ -17,9 +17,10 @@ public class OurSchedule extends ArrayList<Job> {
         super();
     }
 
-    /* ---------------------------------------
+    /* ------------------------------------------------------------------------------
         These functions are called in getSchedule()
-     --------------------------------------- */
+     ------------------------------------------------------------------------------ */
+
     public boolean add(Job job){
         if(job!=null) {
 //            this.tardiness += Math.max(0, this.totalTime + job.processingTime - job.dueTime);
@@ -43,6 +44,19 @@ public class OurSchedule extends ArrayList<Job> {
         return super.add(job);
     }
 
+    public OurSchedule concatenate(OurSchedule otherSchedule){
+        OurSchedule newSchedule = new OurSchedule();
+
+        for(Job job: this){
+            newSchedule.add(job);
+        }
+        for(Job job: otherSchedule){
+            newSchedule.add(job);
+        }
+
+        return newSchedule;
+    }
+
     // [NIELS] Lets optimize this
     public Double getTardiness(Double timePassed){
         // Terminating Condition - 1 and 2 are satisfied here
@@ -55,9 +69,26 @@ public class OurSchedule extends ArrayList<Job> {
         return totalTardiness;
     }
 
-    /* ---------------------------------------
+    public Double getProcessingTime(){
+//        int time = 0;
+//        for(Job job: this){
+//            time+=job.processingTime;
+//        }
+        return totalTime;
+    }
+
+    public Job getK(){
+        return longestJob;
+    }
+
+    public int getKIndex(){
+        return this.longestJobIndex;
+    }
+
+    /* ------------------------------------------------------------------------------
         These functions are called in getReducedDeltas()
-     --------------------------------------- */
+     ------------------------------------------------------------------------------ */
+
     public OurSchedule getSubsetWithDeadlineLEQ(double timestamp){
         OurSchedule result = new OurSchedule();
         for(Job job:this){
@@ -136,13 +167,7 @@ public class OurSchedule extends ArrayList<Job> {
         return maxTardiness;
     }
 
-    public Double getProcessingTime(){
-//        int time = 0;
-//        for(Job job: this){
-//            time+=job.processingTime;
-//        }
-        return totalTime;
-    }
+
 
     public OurSchedule getSubset(int startIndex, int endIndex){
         OurSchedule newSchedule = new OurSchedule();
@@ -156,19 +181,6 @@ public class OurSchedule extends ArrayList<Job> {
         return newSchedule;
     }
 
-    public OurSchedule concatenate(OurSchedule otherSchedule){
-        OurSchedule newSchedule = new OurSchedule();
-
-        for(Job job: this){
-            newSchedule.add(job);
-        }
-        for(Job job: otherSchedule){
-            newSchedule.add(job);
-        }
-
-        return newSchedule;
-    }
-
     public OurSchedule clone() {
         OurSchedule result = new OurSchedule();
         for(Job job: this){
@@ -177,19 +189,6 @@ public class OurSchedule extends ArrayList<Job> {
         return result;
     }
 
-
-
-    public Job getK(){
-        return longestJob;
-    }
-
-    public int getKIndex(){
-        return this.longestJobIndex;
-    }
-
-
-
-
     public int getProcessingTimeSum(){
         int result = 0;
         for(Job job: this){
@@ -197,8 +196,6 @@ public class OurSchedule extends ArrayList<Job> {
         }
         return result;
     }
-
-
 
     public void sortJobs(){
         Collections.sort(this,

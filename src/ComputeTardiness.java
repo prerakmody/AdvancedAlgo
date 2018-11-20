@@ -3,10 +3,13 @@ import java.util.Arrays;
 import java.util.Scanner;
 
 public class ComputeTardiness {
-	public static ProblemInstance readInstance(String filename){
-		System.out.println(" ------- ");
-		System.out.println(" - Filename : " + filename);
-		System.out.println(" ------- \n");
+	public static ProblemInstance readInstance(String filename, int verbose){
+		if (verbose == 1){
+			System.out.println(" ------- ");
+			System.out.println(" - Filename : " + filename);
+			System.out.println(" ------- \n");
+		}
+
 		ProblemInstance instance = null;
 		
 		try {
@@ -35,54 +38,75 @@ public class ComputeTardiness {
 		return instance;
 	}
 
-	public static void writeResultsForTestData(){
-		String data_file_directory="/home/niels/projects/AdvancedAlgo/test-set/instances/";
-		String output_path="/home/niels/projects/AdvancedAlgo/output.csv";
-//		String[] methods = new String[]{"bestfirst", "lawler"};
-//		int[][] rdds_and_tfs = new int[][]{new int[]{30,30}, new int[]{60,60}};
-//		int[] jobcounts = new int[]{30,60};
+	public static void writeResultsForTestData(String data_file_directory, String output_path){
+		int regex = 1;
+		int startBestFirstBool = 0;
+		int lawlerBool = 1;
+		int lawlerApproxBool = 1;
+		int justTest = 1;
 
         File aDirectory = new File(data_file_directory);
         String[] filesInDir = aDirectory.list();
         Arrays.sort(filesInDir);
-//
-//        String[] regexes = new String[]{"#(30|60)", "RDD=0.[36]_TF=0.[36]"};
-        String fileFilterRegex = ".*(?:#80).*";
-//        String fileFilterRegex = ".*(?:#(?:30|60)|RDD=0\\.[46]_TF=0\\.[46]).*";
 
+        // Step1 - Regex
+		String fileFilterRegex = "";
+        if (regex == 1){
+			//        String[] regexes = new String[]{"#(30|60)", "RDD=0.[36]_TF=0.[36]"};
+			fileFilterRegex = ".*(?:#80).*";
+        	// String fileFilterRegex = ".*(?:#(?:30|60)|RDD=0\\.[46]_TF=0\\.[46]).*";
+		}
+
+		// Step2 - Loop over files
         String result = "fileName;resultBestFirst;resultLawler;runtimeBestFirst;runtimeLawler;\n";
         for(String fileName: filesInDir){
             // filter files out of scope
             if(!fileName.matches(fileFilterRegex)){
-                System.out.println(fileName);
+                // System.out.println(fileName);
                 continue;
             }
 
-            ProblemInstance instance = readInstance(data_file_directory+fileName);
+            ProblemInstance instance = readInstance(data_file_directory+fileName, 0);
             long startBestFirst   = System.currentTimeMillis();
             long runtimeBestFirst = -1;
             long tardinessBestFirst = -1;
 
-//            try {
-//                BestFirst bestFirst = new BestFirst(instance);
-//                Schedule bestFirstSchedule = bestFirst.getSchedule();
-//
-//                tardinessBestFirst = bestFirstSchedule.getTardiness();
-//                runtimeBestFirst = System.currentTimeMillis()-startBestFirst;
-//            }
-//            catch(OutOfMemoryError e){
-//                    //error values are preset at initialization
-//            }
+            // Step 2.1 - BestFirst
+            if (startBestFirstBool == 1){
+            	try {
+					BestFirst bestFirst = new BestFirst(instance);
+					Schedule bestFirstSchedule = bestFirst.getSchedule();
 
+					tardinessBestFirst = bestFirstSchedule.getTardiness();
+					runtimeBestFirst = System.currentTimeMillis()-startBestFirst;
+				}
+				catch(OutOfMemoryError e){
+						//error values are preset at initialization
+				}
+			}
 
-            long startLawler = System.currentTimeMillis();
-            MyAlgo lawlerFunc = new MyAlgo(instance);
-            OurSchedule lawlerSchedule = lawlerFunc.getSchedule();
-            long lawlerRuntime = System.currentTimeMillis()-startLawler;
-            Double lawlerTardiness = lawlerSchedule.getTardiness(0d);
+			// Step 2.2 - If only for test
+			if (justTest == 1){
+				long startLawler           = System.currentTimeMillis();
+				MyAlgo lawlerFunc          = new MyAlgo(instance);
+				OurSchedule lawlerSchedule = lawlerFunc.getSchedule();
+				long lawlerRuntime         = System.currentTimeMillis()-startLawler;
+				Double lawlerTardiness     = lawlerSchedule.getTardiness(0d);
+				System.out.println(String.format("%s\t%s\t\t%s;\n", fileName, lawlerTardiness, lawlerRuntime));
 
-            System.out.println(String.format("%s;%s;%s;%s;%s;\n", fileName, tardinessBestFirst, lawlerTardiness, runtimeBestFirst, lawlerRuntime));
-            result += String.format("%s;%s;%s;%s;%s;\n", fileName, tardinessBestFirst, lawlerTardiness, runtimeBestFirst, lawlerRuntime);
+			}else{
+				long startLawler           = System.currentTimeMillis();
+				MyAlgo lawlerFunc          = new MyAlgo(instance);
+				OurSchedule lawlerSchedule = lawlerFunc.getSchedule();
+				long lawlerRuntime         = System.currentTimeMillis()-startLawler;
+				Double lawlerTardiness     = lawlerSchedule.getTardiness(0d);
+
+				System.out.println(String.format("%s;%s;%s;%s;%s;\n", fileName, tardinessBestFirst, lawlerTardiness, runtimeBestFirst, lawlerRuntime));
+				result += String.format("%s;%s;%s;%s;%s;\n", fileName, tardinessBestFirst, lawlerTardiness, runtimeBestFirst, lawlerRuntime);
+			}
+
+			// Step 2.2 -
+
         }
 
         try(PrintWriter out = new PrintWriter(output_path)){
@@ -137,12 +161,14 @@ public class ComputeTardiness {
 
 	// reads a problem, and outputs the result of both greedy and best-first
     public static void main (String args[]) {
-		int writeCsv = 0;
+		int writeCsv = 1;
 		if (writeCsv == 1){
-			writeResultsForTestData();
+			String data_file_directory = "/home/strider/Work/Netherlands/TUDelft/1_Courses/Sem1/AAlgo/Assignments/Part1/AAlgo_PA1/test/instances/";
+			String output_path         = "/home/strider/Work/Netherlands/TUDelft/1_Courses/Sem1/AAlgo/Assignments/Part1/AAlgo_PA1/test/output.csv";
+			writeResultsForTestData(data_file_directory, output_path);
 		}else{
 			Double epsilon = Double.valueOf(args[0]);
-			ProblemInstance instance = readInstance(args[1]);
+			ProblemInstance instance = readInstance(args[1], 1);
 
 			//
 //
