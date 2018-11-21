@@ -53,53 +53,6 @@ public class lawlerApprox {
             }
         }
         return resultSchedule;
-
-
-    }
-
-    private ArrayList<Integer> getReducedDeltas(OurSchedule input_schedule, Double input_dueTime, int kId, Double timePassed, int level){
-        ArrayList<Integer> deltas = new ArrayList<>();
-        OurSchedule schedule = input_schedule.clone();
-        //Job kJob = input_kJob.clone();
-        Double d_k = input_dueTime;
-        //zeroth part
-
-        //first part
-        while(true){
-            Double dk_prime = Double.MIN_VALUE;
-            while(true) {
-
-                dk_prime = timePassed + schedule.getSubsetWithDeadlineLEQ(d_k).getProcessingTime();
-//                if(printCounter<5) {
-//                    System.out.println("dk prima " + dk_prime);
-//                    System.out.println(d_k);
-//
-//                }
-//                printCounter++;
-                if (dk_prime > d_k) {
-                    d_k = dk_prime;
-                }
-                if(dk_prime<=d_k){
-                    break;
-                }
-            }
-            //second part
-//            if(level==5){
-//                System.out.println("--------------");
-//                System.out.println(schedule.findIndex(schedule.findClosestNonTardyJob(d_k)));
-//                System.out.println(kId);
-//            }
-            deltas.add(schedule.findIndex(schedule.findClosestNonTardyJob(d_k))-kId);
-            OurSchedule S_double_prime = schedule.getSubsetWithDeadlineGthan(d_k);
-            if(S_double_prime.size()!=0){
-                d_k = S_double_prime.lowestDueTime.dueTime;
-
-            } else{
-                return deltas;
-            }
-
-        }
-
     }
 
     // 3. The private function
@@ -124,89 +77,115 @@ public class lawlerApprox {
         // Step3.2 - Calculate max{processingTime} for this schedule
         Job kJob = schedule.getK();
         int kId = schedule.getKIndex();
-//        if (level == 0){
-//            System.out.println("\n * Level 0 : kJob : " + kJob);
-//        }
 
         // Step3.3 - loop over all delta [0,N-kID]
         ArrayList<Integer> reducedDeltas = new ArrayList<>();
         if(true) {
             reducedDeltas = getReducedDeltas(schedule, (double) kJob.dueTime, kId, timePassed, level);
-//            if(!printedOnce){
-//                System.out.println("===========================");
-//                System.out.println(schedule);
-//                System.out.println(timePassed);
-//                System.out.println(kJob.dueTime + " " + Integer.toString(kId));
-//                System.out.println(reducedDeltas);
-//
-//                printedOnce=true;
-//            }
-
+            if (level == -1){
+                System.out.println("===== DELTA SITUATION (level=0) =====");
+                System.out.println(" - Total Jobs : " + Integer.toString(N));
+                Double reduction = 1 - reducedDeltas.size()/Double.valueOf(N-kId);
+                System.out.println(" - Delta Len : " + Integer.toString(reducedDeltas.size()) + " || N-kId : " + Integer.toString(N-kId) + " || Reduction % in loops : " + reduction);
+                System.out.println();
+            }
         } else {
             for (int delta=0; delta <= N-kId; delta++){
                 reducedDeltas.add(delta);
             }
         }
-
-//        System.out.println(reducedDeltas.toString());
-
         Double minimumTardiness = Double.MAX_VALUE;
-//        for (int delta=0; delta <= N-kId; delta++){
+        int method = 0;
         for (int delta: reducedDeltas){
-            //concatenate, getsubset, gettardiness are in n. maybe switch to index based system instead of physical lists?
-            // Step3.3.1 - Split into 3 branches
-//            OurSchedule jobsBranch1 = null;
-//            if(memoization.get(new Quple())){
-//
-//            } else{
+            OurSchedule jobsBranch1 = schedule.getSubset(0, kId-1).concatenate(schedule.getSubset(kId+1,kId+delta));
             OurSchedule jobsBranch2 = schedule.getSubset(0,kId+delta);
             Double ck = timePassed+jobsBranch2.getProcessingTime();
-
-//            Quple quple1 = new Quple(0, kId+delta, kId+delta, timePassed);
-//            Quple quple3 = new Quple(kId+delta+1, N-1, N-kId-delta-1, ck);
-//            if(level==0) {
-//                System.out.println(delta+" "+quple1);
-//                System.out.println(quple3);
-//                System.out.println();
-//            }
-//            if(memoization.get(quple1)!=null || memoization.get(quple3)!=null){
-//                System.out.println("hitting memoization");
-//            }
-            OurSchedule jobsBranch1 = schedule.getSubset(0, kId-1).concatenate(schedule.getSubset(kId+1,kId+delta));
             OurSchedule jobsBranch3 = schedule.getSubset(kId+delta+1, N);
 
+            // [NIELS] Does this have any effect?
+            // Step 3.3.2 - Split into 3 branches
+            OurSchedule scheduleBranch1  = new OurSchedule();
+            OurSchedule scheduleBranch3  = new OurSchedule();
+            if (method == 1){
+                scheduleBranch1 = getSchedule(jobsBranch1, timePassed, level+1);
+                scheduleBranch3 = getSchedule(jobsBranch3, ck, level+1);
+            }else{
+                // Method2 - Check if optimal schedule exists, if not, calculate and memoize it.
+                OurSchedule candidateBranch1 = memoization.get(new Tuple(jobsBranch1, timePassed));
+
+                if(candidateBranch1!=null){
+                    // System.out.println("Found match for branch1");
+                    scheduleBranch1 = candidateBranch1;
+                }else{
+                    scheduleBranch1 = getSchedule(jobsBranch1, timePassed, level+1);
+                    memoization.put(new Tuple(jobsBranch1, timePassed), scheduleBranch1);
+                }
+
+                // Method2 - Check if optimal schedule exists, if not, calculate and memoize it.
+                OurSchedule candidateBranch3 = memoization.get(new Tuple(jobsBranch3, ck));
+                if(candidateBranch3!=null){
+                    // System.out.println("Found match for branch3");
+                    scheduleBranch3 = candidateBranch3;
+                }else{
+                    scheduleBranch3 = getSchedule(jobsBranch3, ck, level+1);
+                    memoization.put(new Tuple(jobsBranch3, ck), scheduleBranch3);
+                }
+
+            }
 
             // Step 3.3.2 - Split into 3 branches
-            OurSchedule scheduleBranch1 = getSchedule(jobsBranch1, timePassed, level+1);
-            OurSchedule scheduleBranch3 = getSchedule(jobsBranch3, ck, level+1);
-
-            //only if better
-
-//            if(memoization.get(quple1)==null) {
-//                memoization.put(quple1, scheduleBranch1);
-//            }
-//            if(memoization.get(quple3)==null){
-//                memoization.put(quple3, scheduleBranch3);
-//            }
-
+            //OurSchedule scheduleBranch1 = getSchedule(jobsBranch1, timePassed, level+1);
+            //OurSchedule scheduleBranch3 = getSchedule(jobsBranch3, ck, level+1);
 
             OurSchedule scheduleBranch2 = new OurSchedule();
             scheduleBranch2.add(kJob);
 
             OurSchedule candidateSchedule = scheduleBranch1.concatenate(scheduleBranch2).concatenate(scheduleBranch3);
 
-            if (candidateSchedule.getTardiness(timePassed) < minimumTardiness){
-                minimumTardiness = candidateSchedule.getTardiness(timePassed);
+            Double candidateTardiness = candidateSchedule.getTardiness(timePassed);
+            if (candidateTardiness < minimumTardiness){
+                minimumTardiness = candidateTardiness;
                 returnSchedule   = candidateSchedule;
             }
         }
 
-//        memoization.put(new Quple(returnSchedule.getLowestDueTimeJobId(), returnSchedule.getHighestDueTimeJobId(), returnSchedule.size(), timePassed), returnSchedule);
         memoization.put(new Tuple(schedule, timePassed), returnSchedule);
         return returnSchedule;
     }
 
     ////////////////////////////////////// HELPER FUNCTIONS //////////////////////////////////////
+
+    private ArrayList<Integer> getReducedDeltas(OurSchedule input_schedule, Double input_dueTime, int kId, Double timePassed, int level){
+        ArrayList<Integer> deltas = new ArrayList<>();
+        OurSchedule schedule = input_schedule.clone();
+        Double d_k = input_dueTime;
+
+        //Loop1
+        while(true){
+            Double dk_prime = Double.MIN_VALUE;
+
+            // Loop2 : Updating the due date of Big-Brother (job with highest processing time)
+            while(true) {
+                // dk_prime = timePassed + schedule.getSubsetWithDeadlineLEQ(d_k).getProcessingTime();
+                dk_prime = timePassed + schedule.getSubsetTimeWithDeadlineLEQ(d_k);
+                if (dk_prime > d_k) {
+                    d_k = dk_prime;
+                }
+                if(dk_prime<=d_k){
+                    break;
+                }
+            }
+
+            // Post-Loop-Break
+            deltas.add(schedule.findIndex(schedule.findClosestNonTardyJob(d_k))-kId);
+            OurSchedule S_double_prime = schedule.getSubsetWithDeadlineGthan(d_k);
+            if(S_double_prime.size()!=0){
+                d_k = S_double_prime.lowestDueTime.dueTime;
+            } else{
+                return deltas;
+            }
+        }
+    }
 
     private void sortJobsEDD(){
         Arrays.sort(jobs,

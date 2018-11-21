@@ -30,38 +30,6 @@ public class MyAlgo{
         return getSchedule(s, 0d, 0);
     }
 
-    private ArrayList<Integer> getReducedDeltas(OurSchedule input_schedule, Double input_dueTime, int kId, Double timePassed, int level){
-        ArrayList<Integer> deltas = new ArrayList<>();
-        OurSchedule schedule = input_schedule.clone();
-        Double d_k = input_dueTime;
-
-        //Loop1
-        while(true){
-            Double dk_prime = Double.MIN_VALUE;
-
-            // Loop2 : Updating the due date of Big-Brother (job with highest processing time)
-            while(true) {
-                // dk_prime = timePassed + schedule.getSubsetWithDeadlineLEQ(d_k).getProcessingTime();
-                dk_prime = timePassed + schedule.getSubsetTimeWithDeadlineLEQ(d_k);
-                if (dk_prime > d_k) {
-                    d_k = dk_prime;
-                }
-                if(dk_prime<=d_k){
-                    break;
-                }
-            }
-
-            // Post-Loop-Break
-            deltas.add(schedule.findIndex(schedule.findClosestNonTardyJob(d_k))-kId);
-            OurSchedule S_double_prime = schedule.getSubsetWithDeadlineGthan(d_k);
-            if(S_double_prime.size()!=0){
-                d_k = S_double_prime.lowestDueTime.dueTime;
-            } else{
-                return deltas;
-            }
-        }
-    }
-
     // 3. The private function
     private OurSchedule getSchedule(OurSchedule schedule, Double timePassed, int level){
 
@@ -161,6 +129,38 @@ public class MyAlgo{
     }
 
     ////////////////////////////////////// HELPER FUNCTIONS //////////////////////////////////////
+
+    private ArrayList<Integer> getReducedDeltas(OurSchedule input_schedule, Double input_dueTime, int kId, Double timePassed, int level){
+        ArrayList<Integer> deltas = new ArrayList<>();
+        OurSchedule schedule = input_schedule.clone();
+        Double d_k = input_dueTime;
+
+        //Loop1
+        while(true){
+            Double dk_prime = Double.MIN_VALUE;
+
+            // Loop2 : Updating the due date of Big-Brother (job with highest processing time)
+            while(true) {
+                // dk_prime = timePassed + schedule.getSubsetWithDeadlineLEQ(d_k).getProcessingTime();
+                dk_prime = timePassed + schedule.getSubsetTimeWithDeadlineLEQ(d_k);
+                if (dk_prime > d_k) {
+                    d_k = dk_prime;
+                }
+                if(dk_prime<=d_k){
+                    break;
+                }
+            }
+
+            // Post-Loop-Break
+            deltas.add(schedule.findIndex(schedule.findClosestNonTardyJob(d_k))-kId);
+            OurSchedule S_double_prime = schedule.getSubsetWithDeadlineGthan(d_k);
+            if(S_double_prime.size()!=0){
+                d_k = S_double_prime.lowestDueTime.dueTime;
+            } else{
+                return deltas;
+            }
+        }
+    }
 
     private void sortJobs(){
         Arrays.sort(jobs,

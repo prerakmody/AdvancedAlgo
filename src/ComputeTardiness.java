@@ -40,10 +40,16 @@ public class ComputeTardiness {
 
 	public static void writeResultsForTestData(String data_file_directory, String output_path){
 		int regex = 1;
-		int startBestFirstBool = 0;
-		int lawlerBool = 1;
-		int lawlerApproxBool = 1;
-		int justTest = 1;
+
+		// Prerak
+		int greedyBool = 1;
+		int lawlerApproxBool = 0; Double epsilon = 0.33d;
+
+		// Niels
+		int bestFirstBool = 0;
+		int lawlerBool = 0;
+
+		int justTest = 0;
 
         File aDirectory = new File(data_file_directory);
         String[] filesInDir = aDirectory.list();
@@ -51,41 +57,45 @@ public class ComputeTardiness {
 
         // Step1 - Regex
 		String fileFilterRegex = "";
+		String size = null;
         if (regex == 1){
 			//        String[] regexes = new String[]{"#(30|60)", "RDD=0.[36]_TF=0.[36]"};
-			fileFilterRegex = ".*(?:#80).*";
+			size = "30";
+			fileFilterRegex = ".*(?:#" + size + ").*";
+			// fileFilterRegex = ".*(?:#10).*";
+			// fileFilterRegex = ".*(?:random_RDD=0.2_TF=0.2_#30).*";
         	// String fileFilterRegex = ".*(?:#(?:30|60)|RDD=0\\.[46]_TF=0\\.[46]).*";
 		}
 
+		if (lawlerApproxBool == 1){
+			output_path += "lawlerApprox_" + size + ".csv";
+		}else if(lawlerBool == 1){
+			output_path += "lawler.csv";
+		}
+		else if(greedyBool == 1){
+			output_path += "greedy_" + size + ".csv";
+		}
+		else if(bestFirstBool == 1){
+			output_path += "bestFirst.csv";
+		}
+
+
 		// Step2 - Loop over files
-        String result = "fileName;resultBestFirst;resultLawler;runtimeBestFirst;runtimeLawler;\n";
+        String result = "fileName;result;runtime;\n";
         for(String fileName: filesInDir){
             // filter files out of scope
             if(!fileName.matches(fileFilterRegex)){
                 // System.out.println(fileName);
                 continue;
             }
+			System.out.println(fileName);
 
             ProblemInstance instance = readInstance(data_file_directory+fileName, 0);
             long startBestFirst   = System.currentTimeMillis();
             long runtimeBestFirst = -1;
             long tardinessBestFirst = -1;
 
-            // Step 2.1 - BestFirst
-            if (startBestFirstBool == 1){
-            	try {
-					BestFirst bestFirst = new BestFirst(instance);
-					Schedule bestFirstSchedule = bestFirst.getSchedule();
-
-					tardinessBestFirst = bestFirstSchedule.getTardiness();
-					runtimeBestFirst = System.currentTimeMillis()-startBestFirst;
-				}
-				catch(OutOfMemoryError e){
-						//error values are preset at initialization
-				}
-			}
-
-			// Step 2.2 - If only for test
+			// Step 2.1 - If only for test
 			if (justTest == 1){
 				long startLawler           = System.currentTimeMillis();
 				MyAlgo lawlerFunc          = new MyAlgo(instance);
@@ -93,16 +103,47 @@ public class ComputeTardiness {
 				long lawlerRuntime         = System.currentTimeMillis()-startLawler;
 				Double lawlerTardiness     = lawlerSchedule.getTardiness(0d);
 				System.out.println(String.format("%s\t%s\t\t%s;\n", fileName, lawlerTardiness, lawlerRuntime));
-
-			}else{
+			}else if(lawlerBool == 1){
 				long startLawler           = System.currentTimeMillis();
 				MyAlgo lawlerFunc          = new MyAlgo(instance);
 				OurSchedule lawlerSchedule = lawlerFunc.getSchedule();
 				long lawlerRuntime         = System.currentTimeMillis()-startLawler;
 				Double lawlerTardiness     = lawlerSchedule.getTardiness(0d);
+				String output              = String.format("%s;%s;%s;\n", fileName, lawlerTardiness, lawlerRuntime);
+				System.out.println(output);
+				result += String.format(output);
 
-				System.out.println(String.format("%s;%s;%s;%s;%s;\n", fileName, tardinessBestFirst, lawlerTardiness, runtimeBestFirst, lawlerRuntime));
-				result += String.format("%s;%s;%s;%s;%s;\n", fileName, tardinessBestFirst, lawlerTardiness, runtimeBestFirst, lawlerRuntime);
+			}else if (lawlerApproxBool == 1){
+				long startLawlerApprox           = System.currentTimeMillis();
+				lawlerApprox lawlerApproxFunc    = new lawlerApprox(instance);
+				OurSchedule lawlerApproxSchedule = lawlerApproxFunc.getSchedule(epsilon);
+				long lawlerApproxRuntime         = System.currentTimeMillis() - startLawlerApprox;
+				Double lawlerApproxTardiness     = lawlerApproxSchedule.getTardiness(0d);
+				String output              = String.format("%s;%s;%s;\n", fileName, lawlerApproxTardiness, lawlerApproxRuntime);
+				System.out.println(output);
+				result += String.format(output);
+			}else if (bestFirstBool == 1){
+				try {
+					BestFirst bestFirst        = new BestFirst(instance);
+					Schedule bestFirstSchedule = bestFirst.getSchedule();
+					tardinessBestFirst         = bestFirstSchedule.getTardiness();
+					runtimeBestFirst           = System.currentTimeMillis()-startBestFirst;
+					String output              = String.format("%s;%s;%s;\n", fileName, tardinessBestFirst, runtimeBestFirst);
+					System.out.println(output);
+					result += String.format(output);
+				}
+				catch(OutOfMemoryError e){
+					//error values are preset at initialization
+				}
+			}else if (greedyBool == 1){
+				long startGreedy           = System.currentTimeMillis();
+				Greedy greedyFunc          = new Greedy(instance);
+				Schedule greedySchedule    = greedyFunc.getSchedule();
+				long greddyRuntime         = System.currentTimeMillis() - startGreedy;
+				int greedyTardiness        = greedySchedule.getTardiness();
+				String output              = String.format("%s;%s;%s;\n", fileName, greedyTardiness, greddyRuntime);
+				System.out.println(output);
+				result += String.format(output);
 			}
 
 			// Step 2.2 -
@@ -115,48 +156,6 @@ public class ComputeTardiness {
         catch(FileNotFoundException e){
             System.out.println("be sure to have the destination be a valid path");
         }
-
-
-
-
-//		for(String method: methods){
-//            for(int[] rdd_and_tf: rdds_and_tfs ){
-//                int rdd = rdd_and_tf[0];
-//                int tf = rdd_and_tf[1];
-//                String data_file_path = data_file_directory+"random_RDD="+rdd+"_TF="+tf+"";
-//            }
-//		}
-//
-//		// create a file that is really a directory
-//
-//
-//		// get a listing of all files in the directory
-//
-//		String result = "fileName;resultMyAlgo;runtimeMyAlgo;\n";
-//		for(String file: filesInDir){
-//			ProblemInstance instance = readInstance(data_file_directory+file);
-//
-////			long startGreedy   = System.currentTimeMillis();
-////			Greedy greedy = new Greedy(instance);
-////			Schedule greedySchedule = greedy.getSchedule();
-////			long runtimeGreedy     = System.currentTimeMillis()-startGreedy;
-////			result += String.format("%s;%s;%s;\n", file, greedySchedule.getTardiness(), runtimeGreedy);
-//			long startBestFirst   = System.currentTimeMillis();
-////            int bestFirstTardiness = -1; //-1 implies error
-//			try {
-//				BestFirst bestFirst = new BestFirst(instance);
-//				Schedule bestFirstSchedule = bestFirst.getSchedule();
-//
-//                long runtimeBestFirst = System.currentTimeMillis()-startBestFirst;
-//                result += String.format("%s;%s;%s;\n", file, bestFirstSchedule.getTardiness(), runtimeBestFirst);
-//			}
-//			catch(OutOfMemoryError e){
-//                result += String.format("%s;%s;%s;\n", file, -1, -1);
-//			}
-//		}
-
-
-
 	}
 
 	// reads a problem, and outputs the result of both greedy and best-first
@@ -164,52 +163,11 @@ public class ComputeTardiness {
 		int writeCsv = 1;
 		if (writeCsv == 1){
 			String data_file_directory = "/home/strider/Work/Netherlands/TUDelft/1_Courses/Sem1/AAlgo/Assignments/Part1/AAlgo_PA1/test/instances/";
-			String output_path         = "/home/strider/Work/Netherlands/TUDelft/1_Courses/Sem1/AAlgo/Assignments/Part1/AAlgo_PA1/test/output.csv";
+			String output_path         = "/home/strider/Work/Netherlands/TUDelft/1_Courses/Sem1/AAlgo/Assignments/Part1/AAlgo_PA1/test/results/results/";
 			writeResultsForTestData(data_file_directory, output_path);
-		}else{
+		}else {
 			Double epsilon = Double.valueOf(args[0]);
 			ProblemInstance instance = readInstance(args[1], 1);
-
-			//
-//
-//		long startApproximateOptimized   = System.currentTimeMillis();
-//		lawlerApprox lawlerApprox = new lawlerApprox(instance);
-//		OurSchedule optimizedSchedule = lawlerApprox.getSchedule(epsilon);
-//		long optimizedTardinessTime = System.currentTimeMillis()-startApproximateOptimized;
-//
-//		long startApproximate   = System.currentTimeMillis();
-//		MyAlgo2 myfunc = new MyAlgo2(instance);
-//		OurSchedule myFuncSchedule = myfunc.getSchedule(epsilon);
-//		long runtimeApproximate = System.currentTimeMillis()-startApproximate;
-//////
-			long startOptimal = System.currentTimeMillis();
-			MyAlgo myOptimalFunc = new MyAlgo(instance);
-			OurSchedule myOptSchedule = myOptimalFunc.getSchedule();
-			long runtimeOptimal = System.currentTimeMillis()-startOptimal;
-//
-//
-//		System.out.println(myOptSchedule.getTardiness(0)+ " " + myFuncSchedule.getTardiness(0));
-//
-//		System.out.print(myFuncSchedule.getTardiness(0d));
-			System.out.println("\n -------------------------------- ");
-//		System.out.println("1. approximate min.Tard : " + myFuncSchedule.getTardiness(0d));
-//        System.out.println("1. approximate runtime : " + (runtimeApproximate));
-//
-			System.out.println("2. exact min.Tard : " + myOptSchedule.getTardiness(0d));
-			System.out.println("2. exact runtime : " + (runtimeOptimal));
-
-//		System.out.println("3. lawlerApprox min.Tard : " + optimizedSchedule.getTardiness(0d));
-//		System.out.println("3. lawlerApprox runtime : " + optimizedTardinessTime);
-
-//		System.out.println("\n -------------------------------- ");
-//		System.out.println("1. Greedy min.Tard : " + Integer.toString(greedySchedule.getTardiness()));
-//		System.out.println("1. Greedy runtime : " + end1);
-//		System.out.println(" -------------------------------- ");
 		}
-
-
-
-
-
 	}
 }

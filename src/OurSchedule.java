@@ -70,10 +70,6 @@ public class OurSchedule extends ArrayList<Job> {
     }
 
     public Double getProcessingTime(){
-//        int time = 0;
-//        for(Job job: this){
-//            time+=job.processingTime;
-//        }
         return totalTime;
     }
 
