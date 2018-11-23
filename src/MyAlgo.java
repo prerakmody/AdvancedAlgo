@@ -91,12 +91,12 @@ public class MyAlgo{
             OurSchedule candidateSchedule = scheduleBranch1.concatenate(scheduleBranch2).concatenate(scheduleBranch3);
 
             Double candidateTardiness = candidateSchedule.getTardiness(timePassed);
-            if (level == -1){
+            if (level == 0){
                 System.out.println(" -> Level 0 (" + Integer.toString(count)+ "/" + Integer.toString(reducedDeltas.size()) + ") || candidateTardiness = " + candidateTardiness
                                             + " || (branch1.size)=" + scheduleBranch1.size() + " || (branch2.size)=" + scheduleBranch2.size() + " || (branch3.size)=" + scheduleBranch3.size());
                 System.out.println("\n\n");
             }
-            if (level == -1){
+            if (level == 1){
                 System.out.println(" ---> Level 1 (" + Integer.toString(rand) + ")|| delta : " + Integer.toString(delta) +
                         " ||  candidateTardiness = " + candidateTardiness + "(schedule.size=" + Integer.toString(candidateSchedule.size()) + ")");
             }

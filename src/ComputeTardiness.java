@@ -43,11 +43,11 @@ public class ComputeTardiness {
 
 		// Prerak
 		int greedyBool = 0;
-		int lawlerApproxBool = 0; Double epsilon = 0.33d;
+		int lawlerApproxBool = 1; Double epsilon = 0.33d;
 
 		// Niels
 		int bestFirstBool = 0;
-		int lawlerBool = 1;
+		int lawlerBool = 0;
 
 		int justTest = 0;
 
@@ -68,7 +68,10 @@ public class ComputeTardiness {
 		}
 
 		if (lawlerApproxBool == 1){
-			output_path += "lawlerApprox_" + size + ".csv";
+			if (regex == 0)
+				output_path += "lawlerApprox.csv";
+			else
+				output_path += "lawlerApprox_" + size + ".csv";
 		}else if(lawlerBool == 1){
 			output_path += "lawler_" + size + ".csv";
 			// output_path += "lawler.csv";
@@ -170,7 +173,9 @@ public class ComputeTardiness {
 			Double epsilon = Double.valueOf(args[0]);
 			ProblemInstance instance = readInstance(args[1], 1);
 
-			Boolean lawlerBool = true;
+			Boolean lawlerBool       = false;
+			Boolean lawlerApproxBool = true;
+
 			if (lawlerBool){
 				long startLawler           = System.currentTimeMillis();
 				MyAlgo lawlerFunc          = new MyAlgo(instance);
@@ -178,6 +183,14 @@ public class ComputeTardiness {
 				long lawlerRuntime         = System.currentTimeMillis()-startLawler;
 				Double lawlerTardiness     = lawlerSchedule.getTardiness(0d);
 				System.out.println(String.format("%s\t%s\t\t%s;\n", "", lawlerTardiness, lawlerRuntime));
+			}if(lawlerApproxBool){
+				long startLawlerApprox           = System.currentTimeMillis();
+				lawlerApprox lawlerApproxFunc    = new lawlerApprox(instance);
+				OurSchedule lawlerApproxSchedule = lawlerApproxFunc.getSchedule(epsilon);
+				long lawlerApproxRuntime         = System.currentTimeMillis() - startLawlerApprox;
+				Double lawlerApproxTardiness     = lawlerApproxSchedule.getTardiness(0d);
+				String output              = String.format("%s;%s;%s;\n", "", lawlerApproxTardiness, lawlerApproxRuntime);
+				System.out.println(output);
 			}
 		}
 	}

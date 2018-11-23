@@ -96,7 +96,10 @@ public class lawlerApprox {
         }
         Double minimumTardiness = Double.MAX_VALUE;
         int method = 0;
+        int rand = (int)(Math.random() * 1000);
+        int count = 0;
         for (int delta: reducedDeltas){
+            count += 1;
             OurSchedule jobsBranch1 = schedule.getSubset(0, kId-1).concatenate(schedule.getSubset(kId+1,kId+delta));
             OurSchedule jobsBranch2 = schedule.getSubset(0,kId+delta);
             Double ck = timePassed+jobsBranch2.getProcessingTime();
@@ -104,38 +107,8 @@ public class lawlerApprox {
 
             // [NIELS] Does this have any effect?
             // Step 3.3.2 - Split into 3 branches
-            OurSchedule scheduleBranch1  = new OurSchedule();
-            OurSchedule scheduleBranch3  = new OurSchedule();
-            if (method == 1){
-                scheduleBranch1 = getSchedule(jobsBranch1, timePassed, level+1);
-                scheduleBranch3 = getSchedule(jobsBranch3, ck, level+1);
-            }else{
-                // Method2 - Check if optimal schedule exists, if not, calculate and memoize it.
-                OurSchedule candidateBranch1 = memoization.get(new Tuple(jobsBranch1, timePassed));
-
-                if(candidateBranch1!=null){
-                    // System.out.println("Found match for branch1");
-                    scheduleBranch1 = candidateBranch1;
-                }else{
-                    scheduleBranch1 = getSchedule(jobsBranch1, timePassed, level+1);
-                    memoization.put(new Tuple(jobsBranch1, timePassed), scheduleBranch1);
-                }
-
-                // Method2 - Check if optimal schedule exists, if not, calculate and memoize it.
-                OurSchedule candidateBranch3 = memoization.get(new Tuple(jobsBranch3, ck));
-                if(candidateBranch3!=null){
-                    // System.out.println("Found match for branch3");
-                    scheduleBranch3 = candidateBranch3;
-                }else{
-                    scheduleBranch3 = getSchedule(jobsBranch3, ck, level+1);
-                    memoization.put(new Tuple(jobsBranch3, ck), scheduleBranch3);
-                }
-
-            }
-
-            // Step 3.3.2 - Split into 3 branches
-            //OurSchedule scheduleBranch1 = getSchedule(jobsBranch1, timePassed, level+1);
-            //OurSchedule scheduleBranch3 = getSchedule(jobsBranch3, ck, level+1);
+            OurSchedule scheduleBranch1 = getSchedule(jobsBranch1, timePassed, level+1);
+            OurSchedule scheduleBranch3 = getSchedule(jobsBranch3, ck, level+1);
 
             OurSchedule scheduleBranch2 = new OurSchedule();
             scheduleBranch2.add(kJob);
@@ -143,9 +116,21 @@ public class lawlerApprox {
             OurSchedule candidateSchedule = scheduleBranch1.concatenate(scheduleBranch2).concatenate(scheduleBranch3);
 
             Double candidateTardiness = candidateSchedule.getTardiness(timePassed);
+            if (level == -1){
+                System.out.println(" -> Level 0 (" + Integer.toString(count)+ "/" + Integer.toString(reducedDeltas.size()) + ") || candidateTardiness = " + candidateTardiness
+                        + " || (branch1.size)=" + scheduleBranch1.size() + " || (branch2.size)=" + scheduleBranch2.size() + " || (branch3.size)=" + scheduleBranch3.size());
+                System.out.println("\n\n");
+            }
+            if (level == -1){
+                System.out.println(" ---> Level 1 (" + Integer.toString(rand) + ")|| delta : " + Integer.toString(delta) +
+                        " ||  candidateTardiness = " + candidateTardiness + "(schedule.size=" + Integer.toString(candidateSchedule.size()) + ")");
+            }
             if (candidateTardiness < minimumTardiness){
                 minimumTardiness = candidateTardiness;
                 returnSchedule   = candidateSchedule;
+                if (minimumTardiness == 0d){
+                    break;
+                }
             }
         }
 
