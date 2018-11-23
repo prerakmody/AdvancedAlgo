@@ -42,12 +42,12 @@ public class ComputeTardiness {
 		int regex = 1;
 
 		// Prerak
-		int greedyBool = 1;
+		int greedyBool = 0;
 		int lawlerApproxBool = 0; Double epsilon = 0.33d;
 
 		// Niels
 		int bestFirstBool = 0;
-		int lawlerBool = 0;
+		int lawlerBool = 1;
 
 		int justTest = 0;
 
@@ -60,7 +60,7 @@ public class ComputeTardiness {
 		String size = null;
         if (regex == 1){
 			//        String[] regexes = new String[]{"#(30|60)", "RDD=0.[36]_TF=0.[36]"};
-			size = "30";
+			size = "80";
 			fileFilterRegex = ".*(?:#" + size + ").*";
 			// fileFilterRegex = ".*(?:#10).*";
 			// fileFilterRegex = ".*(?:random_RDD=0.2_TF=0.2_#30).*";
@@ -70,7 +70,8 @@ public class ComputeTardiness {
 		if (lawlerApproxBool == 1){
 			output_path += "lawlerApprox_" + size + ".csv";
 		}else if(lawlerBool == 1){
-			output_path += "lawler.csv";
+			output_path += "lawler_" + size + ".csv";
+			// output_path += "lawler.csv";
 		}
 		else if(greedyBool == 1){
 			output_path += "greedy_" + size + ".csv";
@@ -88,7 +89,7 @@ public class ComputeTardiness {
                 // System.out.println(fileName);
                 continue;
             }
-			System.out.println(fileName);
+			// System.out.println(fileName);
 
             ProblemInstance instance = readInstance(data_file_directory+fileName, 0);
             long startBestFirst   = System.currentTimeMillis();
@@ -168,6 +169,16 @@ public class ComputeTardiness {
 		}else {
 			Double epsilon = Double.valueOf(args[0]);
 			ProblemInstance instance = readInstance(args[1], 1);
+
+			Boolean lawlerBool = true;
+			if (lawlerBool){
+				long startLawler           = System.currentTimeMillis();
+				MyAlgo lawlerFunc          = new MyAlgo(instance);
+				OurSchedule lawlerSchedule = lawlerFunc.getSchedule();
+				long lawlerRuntime         = System.currentTimeMillis()-startLawler;
+				Double lawlerTardiness     = lawlerSchedule.getTardiness(0d);
+				System.out.println(String.format("%s\t%s\t\t%s;\n", "", lawlerTardiness, lawlerRuntime));
+			}
 		}
 	}
 }
